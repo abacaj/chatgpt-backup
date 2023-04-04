@@ -153,7 +153,6 @@ async function getAllConversations(startOffset, stopOffset) {
   // generate offsets
   const offsets = generateOffsets(startOffset, total);
 
-  console.log(offsets);
   // don't spam api
   // fetch all offsets
   for (const offset of offsets) {
@@ -166,8 +165,15 @@ async function getAllConversations(startOffset, stopOffset) {
     allItems.push.apply(allItems, items);
   }
 
+  const lastOffset =
+    stopOffset === -1 ? offsets[offsets.length - 1] : stopOffset;
+
   const allConversations = [];
   const requested = getRequestCount(total, startOffset, stopOffset);
+
+  console.log(
+    `GPT-BACKUP::STARTING::TOTAL-OFFSETS::${lastOffset}::TOTAL-MESSAGES::${requested}`,
+  );
   for (const item of allItems) {
     // 60msg/min
     await sleep(1000);
@@ -181,8 +187,6 @@ async function getAllConversations(startOffset, stopOffset) {
     }
   }
 
-  const lastOffset =
-    stopOffset === -1 ? offsets[offsets.length - 1] : stopOffset;
   logProgress(requested, allConversations.length, lastOffset);
 
   return allConversations;
