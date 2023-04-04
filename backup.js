@@ -1,7 +1,7 @@
 function generateOffsets(startOffset, total) {
-  let interval = 20;
-  let start = startOffset + interval;
-  let offsets = [];
+  const interval = 20;
+  const start = startOffset + interval;
+  const offsets = [];
 
   for (let i = start; i <= total; i += interval) {
     offsets.push(i);
