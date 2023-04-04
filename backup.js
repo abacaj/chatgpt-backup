@@ -175,7 +175,7 @@ async function getAllConversations(startOffset, stopOffset) {
   console.log(`GPT-BACKUP::STARTING::REQUESTED-MESSAGES::${requested}`);
   console.log(`GPT-BACKUP::STARTING::TOTAL-MESSAGES::${total}`);
   for (const item of allItems) {
-    // 60msg/min
+    // 60 conversations/min
     await sleep(1000);
 
     // log progress
