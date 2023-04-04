@@ -14,7 +14,7 @@ A single client side script to backup your entire conversation history on [chat.
 6. Press enter, script starts and will log progress to console
    ![Progress](progress.png)
 7. If it fails at any point you can check the console logs to see the offset it failed at
-8. You can continue at any offset by adjusting the script offsets found at the bottom:
+8. You can run from any offset by adjusting the script offsets found at the bottom of the script:
 
 ```js
 const START_OFFSET = 0;
@@ -37,7 +37,7 @@ Some of the key benefits:
 - Copy paste to run
 - Respects rate limits
 - Fails early
-- Continue if failed by adjusting offsets
+- Adjust offsets if you have many conversations, ex. start at 0 to 500, then run 500 to 1000
 - **Fully auditable code in the backup.js file, no third parties**
 
 ## Use cases
