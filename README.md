@@ -8,7 +8,7 @@ A single client side script to backup your entire conversation history on [chat.
 
 1. Visit https://chat.openai.com
 2. Make sure you are logged in
-3. Open chrome console (f12 on keyboard)
+3. Open chrome console (F12 on keyboard)
 4. Click on "Console" tab
 5. Copy the entire script content found in file backup.js and paste into the console input field at the bottom
 6. Press enter, script starts and will log progress to console
