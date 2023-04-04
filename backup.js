@@ -178,13 +178,14 @@ async function getAllConversations(startOffset, stopOffset) {
     // 60msg/min
     await sleep(1000);
 
+    // log progress
+    if (allConversations.length % 20 === 0) {
+      logProgress(requested, allConversations.length, item.offset);
+    }
+
     const rawConversation = await fetchConversation(token, item.id);
     const conversation = parseConversation(rawConversation);
     allConversations.push(conversation);
-
-    if (allConversations.length % 20 === 0) {
-      logProgress(requested, item.offset, allConversations.length);
-    }
   }
 
   logProgress(requested, allConversations.length, lastOffset);
