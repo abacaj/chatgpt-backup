@@ -21,6 +21,10 @@ const START_OFFSET = 0;
 const STOP_OFFSET = -1;
 ```
 
+## How it works
+
+This uses the same frontend API that is used by your client browser.
+
 ## Benefits
 
 Some of the key benefits:
@@ -45,10 +49,10 @@ Some of the key benefits:
 
 ## Notes
 
-- Tested with 700+ messages
-- Current rate is 60msgs/minute
-- Roughly 10 minutes for 600 messages
-- Roughly 1 hour for 6000 messages
+- Tested with 700+ conversations
+- Current rate is 60 conversations/minute
+- Roughly 10 minutes for 600 conversations
+- Roughly 1 hour for 6000 conversations
 - This is to respect the OAI API rate limits
 - Keep your browser tab open, you don't need it to be focused for this to finish
 - Chrome **may** prompt you to download the file once it's completed
