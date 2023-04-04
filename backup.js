@@ -171,9 +171,9 @@ async function getAllConversations(startOffset, stopOffset) {
   const allConversations = [];
   const requested = getRequestCount(total, startOffset, stopOffset);
 
-  console.log(
-    `GPT-BACKUP::STARTING::TOTAL-OFFSETS::${lastOffset}::TOTAL-MESSAGES::${requested}`,
-  );
+  console.log(`GPT-BACKUP::STARTING::TOTAL-OFFSETS::${lastOffset}`);
+  console.log(`GPT-BACKUP::STARTING::REQUESTED-MESSAGES::${requested}`);
+  console.log(`GPT-BACKUP::STARTING::TOTAL-MESSAGES::${total}`);
   for (const item of allItems) {
     // 60msg/min
     await sleep(1000);
