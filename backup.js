@@ -16,7 +16,7 @@ function sleep(ms = 1000) {
 
 function parseConversation(rawConversation) {
   const title = rawConversation.title;
-  const conversationCreatedTimestamp = rawConversation.created_time;
+  const create_time = rawConversation.create_time;
   const mapping = rawConversation.mapping;
   const keys = Object.keys(mapping);
   const messages = [];
@@ -29,19 +29,19 @@ function parseConversation(rawConversation) {
     const role = msg.author.role;
     const content = msg.content.parts;
     const model = msg.metadata.model_slug;
-    const msgCreatedTimestamp = msg.create_time;
+    const create_time = msg.create_time;
 
     messages.push({
       role,
       content,
       model,
-      msgCreatedTimestamp,
+      create_time,
     });
   }
 
   return {
     messages,
-    conversationCreatedTimestamp,
+    create_time,
     title,
   };
 }
