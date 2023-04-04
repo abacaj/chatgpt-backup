@@ -1,2 +1,54 @@
-# chatgpt-backup
-Single client side script to backup your entire conversation history
+# Backup your ChatGPT conversations
+
+A single client side script to backup your entire conversation history on [chat.openai.com](https://chat.openai.com). The output is a single JSON file of your history.
+
+![Progress](json-sample.png)
+
+## How to use
+
+1. Visit https://chat.openai.com
+2. Make sure you are logged in
+3. Open chrome console (f12 on keyboard)
+4. Click on "Console" tab
+5. Copy the entire script content found in file backup.js and paste into the console input field at the bottom
+6. Press enter, script starts and will log progress to console
+   ![Progress](progress.png)
+7. If it fails at any point you can check the console logs to see the offset it failed at
+8. You can continue at any offset by adjusting the script offsets found at the bottom:
+
+```js
+const START_OFFSET = 0;
+const STOP_OFFSET = -1;
+```
+
+## Benefits
+
+Some of the key benefits:
+
+- Nothing to download
+- Nothing to install
+- Tested on chrome
+- Fully client side
+- Single script
+- Copy paste to run
+- Respects rate limits
+- Fails early
+- Continue if failed by adjusting offsets
+- **Fully auditable code in the backup.js file, no third parties**
+
+## Use cases
+
+- Backup your conversation history offline
+- The model output from the current OAI terms state that they belong to you
+- Useful if you need to look back when the service is down
+- Intended as a read-only backup (the ids aren't stored)
+
+## Notes
+
+- Tested with 700+ messages
+- Current rate is 60msgs/minute
+- Roughly 10 minutes for 600 messages
+- Roughly 1 hour for 6000 messages
+- This is to respect the OAI API rate limits
+- Keep your browser tab open, you don't need it to be focused for this to finish
+- Chrome **may** prompt you to download the file once it's completed
