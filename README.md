@@ -8,7 +8,7 @@ A single client side script to backup your entire conversation history on [chat.
 2. Open `index.html` in your browser
 3. Load the file from the top left
 
-![Preview](preview.png)
+![Preview](assets/preview.png)
 
 ## How to use
 
@@ -18,7 +18,7 @@ A single client side script to backup your entire conversation history on [chat.
 4. Click on "Console" tab
 5. Copy the entire script content found in file backup.js and paste into the console input field at the bottom
 6. Press enter, script starts and will log progress to console
-   ![Progress](progress.png)
+   ![Progress](assets/progress.png)
 7. If it fails at any point you can check the console logs to see the offset it failed at
 8. You can run from any offset by adjusting the script offsets found at the bottom of the script:
 
