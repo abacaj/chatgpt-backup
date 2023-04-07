@@ -59,4 +59,4 @@ Some of the key benefits:
 
 ## Contributors
 
-- @FredySandoval
+- [@FredySandoval](https://github.com/FredySandoval)
