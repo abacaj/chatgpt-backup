@@ -2,7 +2,9 @@
 
 A single client side script to backup your entire conversation history on [chat.openai.com](https://chat.openai.com). The output is a single JSON file of your history.
 
-![Progress](json-sample.png)
+## You can now preview your backups by opening `index.html` locally.
+
+![Preview](preview.png)
 
 ## How to use
 
@@ -54,3 +56,7 @@ Some of the key benefits:
 - Keep your browser tab open, you don't need it to be focused for this to finish
 - Chrome **may** prompt you to download the file once it's completed
 - Tested on firefox, requires you to type `allow pasting` before you can paste the script
+
+## Contributors
+
+- @FredySandoval
