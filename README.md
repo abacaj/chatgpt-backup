@@ -63,4 +63,4 @@ Some of the key benefits:
 
 ## Contributors
 
-- [@FredySandoval](https://github.com/FredySandoval)
+- [@FredySandoval](https://github.com/FredySandoval) - Preview backups feature
