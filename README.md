@@ -2,7 +2,7 @@
 
 A single client side script to backup your entire conversation history on [chat.openai.com](https://chat.openai.com). The output is a single JSON file of your history.
 
-## You can now preview your backups by opening `index.html` locally.
+## You can now preview your backups by opening `index.html` locally
 
 1. Clone the repo: `git clone https://github.com/abacaj/chatgpt-backup.git`
 2. Open `index.html` in your browser
