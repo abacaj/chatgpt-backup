@@ -1,212 +1,227 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Load JSON File</title>
+    <link
+      href="https://unpkg.com/primevue/resources/themes/lara-light-indigo/theme.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/primevue/resources/primevue.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
 
-<head>
-  <meta charset="UTF-8">
-  <title>Load JSON File</title>
-  <link href="https://unpkg.com/primevue/resources/themes/lara-light-indigo/theme.css" rel="stylesheet">
-  <link href="https://unpkg.com/primevue/resources/primevue.min.css" rel="stylesheet">
-  <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@next"></script>
+    <script src="https://unpkg.com/primevue/api/api.min.js"></script>
+    <script src="https://unpkg.com/primevue/config/config.min.js"></script>
+    <script src="https://unpkg.com/primevue/utils/utils.min.js"></script>
+    <script src="https://unpkg.com/primevue/virtualscroller/virtualscroller.min.js"></script>
 
-  <script src="https://unpkg.com/vue@next"></script>
-  <script src="https://unpkg.com/primevue/api/api.min.js"></script>
-  <script src="https://unpkg.com/primevue/config/config.min.js"></script>
-  <script src="https://unpkg.com/primevue/utils/utils.min.js"></script>
-  <script src="https://unpkg.com/primevue/virtualscroller/virtualscroller.min.js"></script>
+    <script src="https://unpkg.com/primevue/ripple/ripple.min.js"></script>
+    <script src="https://unpkg.com/primevue/columngroup/columngroup.min.js"></script>
+    <script src="https://unpkg.com/primevue/paginator/paginator.min.js"></script>
+    <script src="https://unpkg.com/primevue/column/column.min.js"></script>
+    <script src="https://unpkg.com/primevue/datatable/datatable.min.js"></script>
+    <script src="https://unpkg.com/primevue/inputtext/inputtext.min.js"></script>
+    <script src="https://unpkg.com/primevue/button/button.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      .column-td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-  <script src="https://unpkg.com/primevue/ripple/ripple.min.js"></script>
-  <script src="https://unpkg.com/primevue/columngroup/columngroup.min.js"></script>
-  <script src="https://unpkg.com/primevue/paginator/paginator.min.js"></script>
-  <script src="https://unpkg.com/primevue/column/column.min.js"></script>
-  <script src="https://unpkg.com/primevue/datatable/datatable.min.js"></script>
-  <script src="https://unpkg.com/primevue/inputtext/inputtext.min.js"></script>
-  <script src="https://unpkg.com/primevue/button/button.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <style>
-    .column-td {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+      .column-td .button-container {
+        display: flex;
+        justify-content: flex-end;
+      }
 
-    .column-td .button-container {
-      display: flex;
-      justify-content: flex-end;
-    }
+      .column-td button {
+        margin-left: 5px;
+      }
 
-    .column-td button {
-      margin-left: 5px;
-    }
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+      }
 
-    body,
-    html {
-      height: 100%;
-      margin: 0;
-    }
+      .app-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+      }
 
-    .app-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-    }
+      .content-container {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        height: 100%;
+      }
 
-    .content-container {
-      display: flex;
-      width: 100%;
-      max-width: 1400px;
-      height: 100%;
-    }
+      .table-container {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        overflow-y: auto;
+      }
 
-    .table-container {
-      flex: 1;
-      min-width: 0;
-      height: 100%;
-      overflow-y: auto;
-    }
+      .preview {
+        flex: 1;
+        position: sticky;
+        top: 0;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 1rem;
+        height: 100%;
+        /* word-wrap: break-word; Add this line */
+        /* overflow-wrap: break-word; */
+      }
 
-    .preview {
-      flex: 1;
-      position: sticky;
-      top: 0;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      height: 100%;
-      /* word-wrap: break-word; Add this line */
-      /* overflow-wrap: break-word; */
+      .preview pre {
+        white-space: pre-wrap;
+        /* Enable wrapping for <pre> */
+        word-wrap: break-word;
+        /* Enable word wrapping for <pre> */
+      }
 
-    }
+      .preview code {
+        white-space: pre-wrap;
+        /* Enable wrapping for <code> */
+        word-wrap: break-word;
+        /* Enable word wrapping for <code> */
+      }
+    </style>
+  </head>
 
-    .preview pre {
-      white-space: pre-wrap;
-      /* Enable wrapping for <pre> */
-      word-wrap: break-word;
-      /* Enable word wrapping for <pre> */
-    }
+  <body>
+    <div id="app" class="app-container"></div>
 
-    .preview code {
-      white-space: pre-wrap;
-      /* Enable wrapping for <code> */
-      word-wrap: break-word;
-      /* Enable word wrapping for <code> */
-    }
-  </style>
-</head>
-
-<body>
-  <div id="app" class="app-container"></div>
-
-  <template id="template">
-    <div class="content-container">
-      <div class="table-container">
-        <input type="file" id="fileInput" @change="loadJSON" accept=".json">
-        <p-datatable :value="output">
-          <p-column field="title" header="Title" class="column-td">
-            <template #body="slotProps">
-              <span>{{ slotProps.data.title || 'Untitled' }}</span>
-              <div class="button-container">
-                <p-button icon="pi pi-eye" size="small" @click="showPreview(slotProps.data)"></p-button>
-                <p-button icon="pi pi-download" size="small" @click="downloadChat(slotProps.data)"></p-button>
-              </div>
-            </template>
-          </p-column>
-        </p-datatable>
+    <template id="template">
+      <div class="content-container">
+        <div class="table-container">
+          <input type="file" id="fileInput" @change="loadJSON" accept=".json" />
+          <p-datatable :value="output">
+            <p-column field="title" header="Title" class="column-td">
+              <template #body="slotProps">
+                <span>{{ slotProps.data.title || 'Untitled' }}</span>
+                <div class="button-container">
+                  <p-button
+                    icon="pi pi-eye"
+                    size="small"
+                    @click="showPreview(slotProps.data)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-download"
+                    size="small"
+                    @click="downloadChat(slotProps.data)"
+                  ></p-button>
+                </div>
+              </template>
+            </p-column>
+          </p-datatable>
+        </div>
+        <div class="preview" v-if="selectedChat" v-html="preview"></div>
       </div>
-      <div class="preview" v-if="selectedChat" v-html="preview"></div>
-    </div>
-  </template>
-  <script>
-    const app = Vue.createApp({
-      data() {
-        return {
-          output: null,
-          preview: '',
-          selectedChat: false,
-          previousChat: null,
-        }
-      },
-      methods: {
-        loadJSON() {
-          /**
-            * @typedef {Object} Message - A chat message object.
-            * @property {string} role - The role of the message sender (e.g. "user" or "assistant").
-            * @property {string[]} content - The content of the message as an array of strings.
-            * @property {number} create_time - The timestamp of when the message was created.
-            * @property {string} [model] - The name of the NLP model used to generate the message.
-            */
-          /**
-           * @typedef {Object} Chat - A chat conversation object.
-           * @property {Message[]} messages - An array of messages in the chat.
-           * @property {number} create_time - The timestamp of when the chat was created.
-           * @property {string} [title] - The title of the chat (optional).
-           */
-
-          /**
-           * @typedef {Chat[]} Backup - An array of chat objects representing a backup of a chat log.
-           */
-          const input = document.getElementById('fileInput');
-          const file = input.files[0];
-          const reader = new FileReader();
-          reader.readAsText(file);
-          reader.onload = () => {
-            const json = JSON.parse(reader.result);
-            this.output = json;
-            localStorage.setItem('json_data', JSON.stringify(json));
-
-            console.log(json);
+    </template>
+    <script>
+      const app = Vue.createApp({
+        data() {
+          return {
+            output: null,
+            preview: '',
+            selectedChat: false,
+            previousChat: null,
           };
         },
-        jsonToMarkdown(json) {
-          let output = '';
-          const userIcon = '![User](https://i.ibb.co/VHyBY1N/mdi-user.png)';
-          const assistantIcon = '![Assistant](https://i.ibb.co/hmbwHLh/tabler-brand-openai-1.png)';
-          for (const message of json.messages) {
-            if (message.role === 'user' || message.role === 'assistant') {
-              output += `${message.role === 'user' ? userIcon : assistantIcon}\r\n\r\n${message.content[0]}\n\n---\n\n`;
-            }
-          }
-          return output;
-        },
-        downloadChat(chat) {
-          const title = chat.title || 'Untitled';
-          const markdown = this.jsonToMarkdown(chat);
-          this.downloadMarkdown(title, markdown);
-        },
-        downloadMarkdown(title, markdown) {
-          const blob = new Blob([markdown], { type: 'text/markdown' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${title}.md`;
-          link.click();
-          URL.revokeObjectURL(url);
-        },
-        showPreview(chat) {
-          this.selectedChat = !this.selectedChat || this.previousChat !== chat;
-          this.previousChat = chat;
-          const markdown = this.jsonToMarkdown(chat);
-          const outputElement = document.createElement('div');
-          outputElement.innerHTML = marked.parse(markdown);
-          this.preview = outputElement.innerHTML;
-        }
-      },
-      mounted() {
-        const savedJSON = localStorage.getItem('json_data');
-        if (savedJSON) {
-          this.output = JSON.parse(savedJSON);
-        }
-      },
-      template: '#template',
-      components: {
-        'p-button': primevue.button,
-        'p-datatable': primevue.datatable,
-        'p-column': primevue.column,
-      },
-    });
-    app.directive('ripple', primevue.ripple)
-    app.mount('#app');
-  </script>
-</body>
+        methods: {
+          loadJSON() {
+            /**
+             * @typedef {Object} Message - A chat message object.
+             * @property {string} role - The role of the message sender (e.g. "user" or "assistant").
+             * @property {string[]} content - The content of the message as an array of strings.
+             * @property {number} create_time - The timestamp of when the message was created.
+             * @property {string} [model] - The name of the NLP model used to generate the message.
+             */
+            /**
+             * @typedef {Object} Chat - A chat conversation object.
+             * @property {Message[]} messages - An array of messages in the chat.
+             * @property {number} create_time - The timestamp of when the chat was created.
+             * @property {string} [title] - The title of the chat (optional).
+             */
 
+            /**
+             * @typedef {Chat[]} Backup - An array of chat objects representing a backup of a chat log.
+             */
+            const input = document.getElementById('fileInput');
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = () => {
+              const json = JSON.parse(reader.result);
+              this.output = json;
+              localStorage.setItem('json_data', JSON.stringify(json));
+
+              console.log(json);
+            };
+          },
+          jsonToMarkdown(json) {
+            let output = '';
+            const userIcon = '![User](assets/mdi-user.png)';
+            const assistantIcon =
+              '![Assistant](assets/tabler-brand-openai-1.png)';
+            for (const message of json.messages) {
+              if (message.role === 'user' || message.role === 'assistant') {
+                output += `${
+                  message.role === 'user' ? userIcon : assistantIcon
+                }\r\n\r\n${message.content[0]}\n\n---\n\n`;
+              }
+            }
+            return output;
+          },
+          downloadChat(chat) {
+            const title = chat.title || 'Untitled';
+            const markdown = this.jsonToMarkdown(chat);
+            this.downloadMarkdown(title, markdown);
+          },
+          downloadMarkdown(title, markdown) {
+            const blob = new Blob([markdown], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${title}.md`;
+            link.click();
+            URL.revokeObjectURL(url);
+          },
+          showPreview(chat) {
+            this.selectedChat =
+              !this.selectedChat || this.previousChat !== chat;
+            this.previousChat = chat;
+            const markdown = this.jsonToMarkdown(chat);
+            const outputElement = document.createElement('div');
+            outputElement.innerHTML = marked.parse(markdown);
+            this.preview = outputElement.innerHTML;
+          },
+        },
+        mounted() {
+          const savedJSON = localStorage.getItem('json_data');
+          if (savedJSON) {
+            this.output = JSON.parse(savedJSON);
+          }
+        },
+        template: '#template',
+        components: {
+          'p-button': primevue.button,
+          'p-datatable': primevue.datatable,
+          'p-column': primevue.column,
+        },
+      });
+      app.directive('ripple', primevue.ripple);
+      app.mount('#app');
+    </script>
+  </body>
 </html>
