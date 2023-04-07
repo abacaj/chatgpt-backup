@@ -4,6 +4,10 @@ A single client side script to backup your entire conversation history on [chat.
 
 ## You can now preview your backups by opening `index.html` locally.
 
+1. Clone the repo: `git clone https://github.com/abacaj/chatgpt-backup.git`
+2. Open `index.html` in your browser
+3. Load the file from the top left
+
 ![Preview](preview.png)
 
 ## How to use
