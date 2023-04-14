@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    html,
+    body {
+      height: 200px;
+      width: 350px;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      margin: 0;
+      color: black;
+    }
+    .extension-container.dark h2 {
+      color: white;
+    }
+    .extension-container{
+      background-color: #f0f0f0;
+      height: 100%;
+      padding: 10px;
+      padding-top: 20px;
+      font-family: Söhne,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif,Helvetica Neue,Arial,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+    }
+    .extension-container.dark {
+      background-color: #444654;
+      color: white;
+    }
+    .container-1 span {
+      display: flex;
+      align-items: center;
+    }
+    .container-1 {
+      font-size:0.8rem;
+      display: flex;
+      font-weight: 500;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    .buttons button {
+      color: black;
+      background-color: transparent;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 0.5rem 0.5rem;
+    }
+    .buttons button:hover {
+      background-color: #ececf1;
+      border: 1px solid #0000001a;
+    }
+    .extension-container.dark .buttons button {
+      color: white;
+      border: 1px solid #565869;
+    }
+    .extension-container.dark .buttons button:hover {
+      background-color: #565869;
+      border: 1px solid #0000001a;
+    }
+    #progress {
+      position: absolute;
+      bottom: 0;
+      margin-bottom: 20px;
+      color: gray;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="extension-container">
+    <h2>ChatGPT-backup</h2>
+    <br></br>
+    <div class="container-1">
+      <span>Backup All Chats As:</span>
+      <div class="buttons">
+        <button id="download-as-json">JSON</button>
+        <button id="download-as-markdown">MARKDOWN</button>
+      </div>
+    </div>
+    <br></br>
+    <div class="container-1">
+      <span>Backup Current Chat As:</span>
+      <div class="buttons">
+        <button id="download-current-chat-as-json">JSON</button>
+        <button id="download-current-chat-as-markdown">MARKDOWN</button>
+      </div>
+    </div>
+    <div id="progress"></div>
+  </div>
+  <script src="jszip.js"></script>
+  <script src="FileSaver.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
