@@ -36,7 +36,7 @@
   "permissions": [
     "https://chat.openai.com/*",
     "tabs",
-    "activeTab",
+    "downloads",
     "storage"
   ],
   "content_security_policy": {

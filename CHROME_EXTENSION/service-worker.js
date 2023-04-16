@@ -57,16 +57,6 @@ function logProgress(total, messages, offset) {
   console.log(`GPT-BACKUP::PROGRESS::${progress}%::OFFSET::${offset}`);
 }
 
-function getDateFormat(date) {
-  const year = date.getFullYear();
-  const month = ('0' + (date.getMonth() + 1)).slice(-2);
-  const day = ('0' + date.getDate()).slice(-2);
-  const hours = ('0' + date.getHours()).slice(-2);
-  const minutes = ('0' + date.getMinutes()).slice(-2);
-  const seconds = ('0' + date.getSeconds()).slice(-2);
-
-  return `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
-}
 async function storeToken(token) {
   return new Promise((resolve, reject) => {
     chrome.storage.sync.set({ access_token: token }, () => {
@@ -116,7 +106,11 @@ async function getFirstConversationId() {
   );
 
   if (!res.ok) {
-    throw new Error("failed to fetch conversation ids");
+    // if token expired delete it
+    if (res.status === 401) {
+      await chrome.storage.sync.remove("access_token");
+    }
+    throw new Error("failed to fetch conversation ids, token expired? try again");
   }
 
   const json = await res.json();
@@ -168,7 +162,7 @@ async function fetchConversation(token, id, maxAttempts = 3, attempt = 1) {
   return res.json();
 }
 
-async function getAllConversations(startOffset, stopOffset, port) {
+async function getAllConversations(startOffset, stopOffset) {
   const token = await loadToken();
 
   // get first batch
@@ -215,46 +209,98 @@ async function getAllConversations(startOffset, stopOffset, port) {
     allConversations.push(conversation);
     const title = conversation.title || 'untitled';
     const shortTitle = title.length > 20 ? `${title.substring(0, 20)}...` : title;
-    port.postMessage({ message: 'chatProcessed', title: shortTitle });       // <--- point of interest
+    progressState = shortTitle;
+    const total = allConversations.length;
+    ports.forEach((port) => port.postMessage({ text: progressState, total }));
   }
 
-  logProgress(requested, allConversations.length, lastOffset );
+  logProgress(requested, allConversations.length, lastOffset);
 
   return allConversations;
 }
 
-async function main(startOffset, stopOffset, port) {
-  const allConversations = await getAllConversations(startOffset, stopOffset, port);
+async function main(startOffset, stopOffset) {
+  const allConversations = await getAllConversations(startOffset, stopOffset);
   return allConversations;
 }
 
+let progressState = '';
+const ports = new Set();
 chrome.runtime.onConnect.addListener(function (port) {
-  console.assert(port.name == 'chatFetched');
-  port.onMessage.addListener(function (msg) {
-    if (msg.message === 'backUp') {
-      main(msg.startOffset, msg.stopOffset, port ).then((allConversations) => {
-        port.postMessage({ message: 'backUp done', allConversations })
-      });
-    }
+  console.assert(port.name == 'progress');
+  ports.add(port);
+  port.postMessage({ text: progressState });
+  port.onDisconnect.addListener(function () {
+    ports.delete(port);
   });
 });
+importScripts('./jszip.js');
+const zip = new JSZip();
+function saveAs(contentString = '', fileType = 'text/plain', filename = 'file.txt') {
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=1224027
+  // Creating a download from generated content in Manifest V3 is not supported.
+  // URL.createObjectURL() is not exposed in Manifest V3.
+  // Example:
+  //   chrome.downloads.download({
+  //     url: URL.createObjectURL(new Blob([generatedData], {type: 'video/mp4'})),
+  //     filename: 'video.mp4',
+  // });
+  // Workaround:
+  let base64Data, dataUrl;
+  if (fileType === 'application/zip') {
+    base64Data = contentString;
+    dataUrl = `data:${fileType};base64,${base64Data}`;
+  } else {
+    base64Data = btoa(unescape(encodeURIComponent(contentString)));// will fail if file too big
+    dataUrl = `data:${fileType};base64,${base64Data}`;
+  }
 
+  chrome.downloads.download({
+    url: dataUrl,
+    filename: filename,
+  }, downloadId => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+    } else {
+      console.log('Download initiated with ID:', downloadId);
+    }
+  });
+}
 // This code runs when a network request is intercepted.
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if ( request.message === 'getColorScheme' ) {
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {// <-- here is where all happens
+  if (request.message === 'getColorScheme') {
     chrome.storage.local.set({ colorScheme: request.colorScheme });
   }
 
+  if (request.message === 'backUpAllAsJSON') {
+    main(request.startOffset, request.stopOffset).then((allConversations) => {
+      downloadJson(allConversations)
+      sendResponse({ message: 'backUpAllAsJSON done' })
+    });
+  }
+  if (request.message === 'backUpAllAsMARKDOWN') {
+    console.log(request);
+    main(request.startOffset, request.stopOffset).then((allConversations) => {
+      downloadMarkdownZip(allConversations, request.userLabel, request.assistantLabel);
+      sendResponse({ message: 'backUpAllAsMARKDOWN done' })
+    });
+  }
 
   if (request.message === 'backUpSingleChat') {
     handleSingleUrlId(request.tabs).then((conversation) => {
+      if (request.downloadType === 'json') {
+        downloadJson(conversation)
+      } else {
+        downloadMarkdownZip(conversation, request.userLabel, request.assistantLabel);
+      }
       sendResponse({ message: 'backUpSingleChat done', conversation })
     });
 
   }
   return true;
 });
-async function handleSingleUrlId(tabs){
+
+async function handleSingleUrlId(tabs) {
   const url = tabs[0].url;
   const parsedUrl = new URL(url);
   const pathSegments = parsedUrl.pathname.split('/');
@@ -265,10 +311,50 @@ async function handleSingleUrlId(tabs){
   if (!conversationId.match(regex)) {
     const res = await getConversationIds(token)
     id = res.items[0].id;
-  }else {
+  } else {
     id = conversationId;
   }
   const rawConversation = await fetchConversation(token, id);
   const conversation = parseConversation(rawConversation);
-  return [ conversation ];
+  return [conversation];
+}
+function downloadMarkdownZip(chats, userLabel, assistantLabel) {
+  const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
+  const onlyOneChat = chats.length === 1;
+  if (onlyOneChat) {
+    const title = chats[0].title || 'untitled';
+    const markdown = jsonToMarkdown(chats[0], userLabel, assistantLabel);
+    saveAs(markdown, 'text/markdown', `${title}.md`);
+  }else {
+    for (let chat of chats) {
+      const title = chat.title || 'untitled';
+      const markdown = jsonToMarkdown(chat, userLabel, assistantLabel);
+      zip.file(`${title}.md`, markdown);
+    }
+    zip.generateAsync({ type: 'base64' }).then((content) => {
+      saveAs(content, 'application/zip', `gpt-backup-${dateStr}.zip`);
+    });
+  }
+}
+function jsonToMarkdown(json, userLabel = "USER:", assistantLabel = "ASSISTANT:") {
+  let output = '';
+  const userIcon = '![User](assets/mdi-user.png)';
+  const assistantIcon =
+    '![Assistant](assets/tabler-brand-openai-1.png)';
+  for (const message of json.messages) {
+    if (message.role === 'user' || message.role === 'assistant') {
+      output += `${message.role === 'user' ? userLabel : assistantLabel}\r\n\r\n${message.content[0]}\n\n---\n\n`;
+    }
+  }
+  return output;
+}
+function downloadJson(data) {
+  console.log(data);
+  if (!data) {
+    console.error('No data')
+    return;
+  }
+  const dateStr = new Date().toISOString().replace(/[:.]/g, '-');
+  const jsonString = JSON.stringify(data, null, 2);
+  saveAs(jsonString, 'application/json', `gpt-backup-${dateStr}.json`);
 }
