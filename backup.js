@@ -142,7 +142,7 @@ async function fetchConversation(token, id, maxAttempts = 3, attempt = 1) {
       throw new Error(`Failed to fetch conversation after ${maxAttempts} attempts.`);
     } else {
       var backoff = INITIAL_BACKOFF * Math.pow(BACKOFF_MULTIPLIER, attempt);
-      console.log("Error. Retrying in ${backoff}ms.");
+      console.log(`Error. Retrying in ${backoff}ms.`);
       await sleep(backoff);
       return fetchConversation(token, id, maxAttempts, attempt + 1);
     }
