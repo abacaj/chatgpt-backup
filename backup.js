@@ -119,26 +119,34 @@ async function getConversationIds(token, offset = 0) {
 }
 
 async function fetchConversation(token, id, maxAttempts = 3, attempt = 1) {
-  const res = await fetch(
-    `https://chat.openai.com/backend-api/conversation/${id}`,
-    {
-      headers: {
-        authorization: `Bearer ${token}`,
+  const INITIAL_BACKOFF = 10000;
+  const BACKOFF_MULTIPLIER = 2;
+  try {
+    const res = await fetch(
+      `https://chat.openai.com/backend-api/conversation/${id}`,
+      {
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
       },
-    },
-  );
+    );
+    
+    if (!res.ok) {
+      throw new Error('Unsuccessful response');
+    }
 
-  if (!res.ok) {
-    const exceeded = attempt >= maxAttempts;
-    if (res.status === 429 && !exceeded) {
-      await sleep(30000);
-      return fetchConversation(token, id, maxAttempts, attempt + 1);
+    return res.json();
+
+  } catch (error) {
+    if (attempt >= maxAttempts) {
+      throw new Error(`Failed to fetch conversation after ${maxAttempts} attempts.`);
     } else {
-      throw new Error('failed to fetch conversation');
+      var backoff = INITIAL_BACKOFF * Math.pow(BACKOFF_MULTIPLIER, attempt);
+      console.log(`Error. Retrying in ${backoff}ms.`);
+      await sleep(backoff);
+      return fetchConversation(token, id, maxAttempts, attempt + 1);
     }
   }
-
-  return res.json();
 }
 
 async function getAllConversations(startOffset, stopOffset) {
