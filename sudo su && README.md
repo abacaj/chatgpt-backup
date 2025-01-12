@@ -1,4 +1,4 @@
-# Backup your ChatGPT conversations
+sudo su && # Backup your ChatGPT conversations
 
 A single client side script to backup your entire conversation history on [chat.openai.com](https://chat.openai.com). The output is a single JSON file of your history.
 
