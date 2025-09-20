@@ -1,0 +1,2301 @@
+From 7118e775853c83be3d988663522aa7bcae6f72be Mon Sep 17 00:00:00 2001
+From: Pedro Santos <plgsantos@icloud.com>
+Date: Sat, 20 Sep 2025 17:07:28 -0300
+Subject: [PATCH] Enhanced ChatGPT Backup Viewer with Modern Design System
+
+Complete rebuild of the backup viewer with significant improvements:
+
+Features:
+- Rebuilt with vanilla JavaScript removing external dependencies
+- Modern monochromatic design system with light/dark theme support
+- Dynamic logo and icon switching based on active theme
+- Responsive design optimized for all screen sizes
+- Enhanced markdown parser with theme-aware rendering
+- FontAwesome icons integration for improved user experience
+
+Design System:
+- Implemented professional monochromatic color palette
+- Semantic color tokens with neutral scales from 0 to 900
+- WCAG-compliant contrast ratios for accessibility
+- Opacity-based interactive states for consistent UX
+- Professional typography and visual hierarchy
+
+Technical Improvements:
+- Removed Vue.js dependencies that caused loading issues
+- Zero external CDN dependencies for improved reliability
+- Enhanced error handling with user-friendly feedback
+- Cross-browser compatibility improvements
+- Memory-efficient data handling and performance optimization
+
+User Experience:
+- Auto-save functionality with localStorage persistence
+- Individual conversation export to Markdown format
+- Real-time theme switching with instant visual updates
+- Clean and intuitive interface design
+- Improved visual feedback and status messages
+
+This enhancement maintains full backward compatibility while providing
+a significantly improved user experience. Developed as a contribution
+of gratitude to the original project creator for providing such a
+valuable tool to the community.
+---
+ .gitignore                                 |    4 +
+ README.md                                  |  130 ++-
+ assets/css/styles.css                      | 1036 ++++++++++++++++++++
+ assets/images/OpenAI-black-monoblossom.svg |   15 +
+ assets/images/OpenAI-white-monoblossom.svg |   15 +
+ assets/images/chat_user_black.svg          |    3 +
+ assets/images/chat_user_white.svg          |    3 +
+ assets/js/app.js                           |  629 ++++++++++++
+ index.html                                 |  307 ++----
+ 9 files changed, 1888 insertions(+), 254 deletions(-)
+ create mode 100644 assets/css/styles.css
+ create mode 100644 assets/images/OpenAI-black-monoblossom.svg
+ create mode 100644 assets/images/OpenAI-white-monoblossom.svg
+ create mode 100644 assets/images/chat_user_black.svg
+ create mode 100644 assets/images/chat_user_white.svg
+ create mode 100644 assets/js/app.js
+
+diff --git a/.gitignore b/.gitignore
+index 6704566..c6cbece 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -102,3 +102,7 @@ dist
+ 
+ # TernJS port file
+ .tern-port
++
++
++# Pessoal Files
++assets/downloads/*
+\ No newline at end of file
+diff --git a/README.md b/README.md
+index 80254a9..cf46560 100644
+--- a/README.md
++++ b/README.md
+@@ -2,65 +2,117 @@
+ 
+ A single client side script to backup your entire conversation history on [chat.openai.com](https://chat.openai.com). The output is a single JSON file of your history.
+ 
+-## You can now preview your backups by opening `index.html` locally
++## 🎯 Choose Your Backup Method
+ 
+-1. Clone the repo: `git clone https://github.com/abacaj/chatgpt-backup.git`
+-2. Open `index.html` in your browser
+-3. Load the file from the top left
++### Option A: Specific Conversation (Recommended)
++**For backing up individual conversations or custom GPTs**
++- Use `backup_conversa_atual.js` 
++- ⚡ **Fast**: Takes seconds
++- 🎯 **Targeted**: Only current conversation
++- 💾 **Lightweight**: Small file size
++
++### Option B: Complete Backup
++**For backing up all your ChatGPT history**
++- Use `backup.js`
++- 🕐 **Comprehensive**: All conversations
++- ⏳ **Time-intensive**: Can take hours
++- 📦 **Large**: Full history file
++
++## 🚀 Preview your backups with the improved viewer
++
++**We've completely rebuilt the viewer with vanilla JavaScript for better reliability:**
++
++1. Open `index.html` in your browser (or serve locally)
++2. Load your JSON backup file
++3. Browse conversations with enhanced interface
++4. Export individual conversations to Markdown
+ 
+ ![Preview](assets/preview.png)
+ 
+-## How to use
++### ✨ New Viewer Features
++- **🔄 Robust loading**: No external dependencies 
++- **📱 Responsive design**: Works on any screen size
++- **💾 Auto-save**: Remembers your loaded data
++- **📄 Individual export**: Download conversations as Markdown
++- **🎨 Clean interface**: Improved user experience
++- **🛡️ Error handling**: Clear feedback and validation
++
++## 📖 How to use
++
++### For Specific Conversation Backup
++
++1. Visit the ChatGPT conversation you want to backup
++2. Open browser console (F12 on keyboard)  
++3. Click on "Console" tab
++4. Copy the entire content from `backup_conversa_atual.js` and paste into console
++5. Press Enter and wait for automatic download
++
++### For Complete Backup
+ 
+ 1. Visit https://chat.openai.com
+ 2. Make sure you are logged in
+ 3. Open chrome console or firefox console (F12 on keyboard)
+ 4. Click on "Console" tab
+-5. Copy the entire script content found in file backup.js and paste into the console input field at the bottom
++5. Copy the entire script content found in file `backup.js` and paste into the console input field at the bottom
+ 6. Press enter, script starts and will log progress to console
+    ![Progress](assets/progress.png)
+ 7. If it fails at any point you can check the console logs to see the offset it failed at
+ 8. You can run from any offset by adjusting the script offsets found at the bottom of the script:
+ 
+-```js
+-const START_OFFSET = 0;
+-const STOP_OFFSET = -1;
+ ```
+ 
+-## How it works
++## 🔧 How it works
+ 
+ This uses the same frontend API that is used by your client browser.
+ 
+-## Benefits
++## ✨ Benefits
+ 
+ Some of the key benefits:
+ 
+-- Nothing to download or install
+-- Tested on chrome, firefox
+-- Fully client side, single script, copy paste to run
+-- Respects rate limits
+-- Fails early
+-- Adjust offsets if you have many conversations, ex. start at 0 to 500, then run 500 to 1000
+-- **Fully auditable code in the backup.js file, no third parties**
+-
+-## Use cases
+-
+-- Backup your conversation history offline
+-- The model output from the current OAI terms state that they belong to you
+-- Useful if you need to look back when the service is down
+-- Intended as a read-only backup (the ids aren't stored)
+-
+-## Notes
+-
+-- Tested with 700+ conversations
+-- Current rate is 60 conversations/minute
+-- Roughly 10 minutes for 600 conversations
+-- Roughly 1 hour for 6000 conversations
+-- This is to respect the OAI API rate limits
+-- Keep your browser tab open, you don't need it to be focused for this to finish
+-- Chrome **may** prompt you to download the file once it's completed
+-- Tested on firefox, requires you to type `allow pasting` before you can paste the script
+-
+-## Contributors
+-
++- **Nothing to download or install**
++- **Tested on chrome, firefox**
++- **Fully client side**, single script, copy paste to run
++- **Respects rate limits**
++- **Fails early** with clear error messages
++- **Adjust offsets** if you have many conversations, ex. start at 0 to 500, then run 500 to 1000
++- **Fully auditable code** in the backup files, no third parties
++- **New: Enhanced viewer** with vanilla JavaScript for better reliability
++- **New: Specific conversation backup** for targeted exports
++
++## 📊 Scripts Comparison
++
++| Feature | `backup.js` | `backup_conversa_atual.js` |
++|---------|-------------|----------------------------|
++| **Scope** | All conversations | Current conversation only |
++| **Speed** | Hours (large datasets) | Seconds |
++| **File size** | Large | Small |
++| **Rate limiting** | Required | Not relevant |
++| **Use case** | Complete archive | Specific backup |
++
++## 🎯 Use cases
++
++- **Backup your conversation history offline**
++- **Archive specific important conversations**
++- **Export custom GPT conversations**
++- **The model output from the current OAI terms state that they belong to you**
++- **Useful if you need to look back when the service is down**
++- **Intended as a read-only backup** (the ids aren't stored)
++
++## 📝 Notes
++
++- **Tested with 700+ conversations**
++- **Current rate is 60 conversations/minute** (for complete backup)
++- **Roughly 10 minutes for 600 conversations**
++- **Roughly 1 hour for 6000 conversations**
++- **This is to respect the OAI API rate limits**
++- **Keep your browser tab open**, you don't need it to be focused for this to finish
++- **Chrome may prompt you to download the file** once it's completed
++- **Tested on firefox**, requires you to type `allow pasting` before you can paste the script
++
++## 🌟 Contributors
++
++- [@abacaj](https://github.com/abacaj) - Original creator
+ - [@FredySandoval](https://github.com/FredySandoval) - Preview backups feature
++- **Enhanced viewer and specific conversation backup** - Community contributionsjs
++const START_OFFSET = 0;
++const STOP_OFFSET = -1;
+diff --git a/assets/css/styles.css b/assets/css/styles.css
+new file mode 100644
+index 0000000..918f631
+--- /dev/null
++++ b/assets/css/styles.css
+@@ -0,0 +1,1036 @@
++:root {
++    /* Monochromatic Neutral Scale - Light Theme (Based on EightShapes principles) */
++    /* Base neutrals: white to near-black with successive darkening layers */
++    --neutral-0: #ffffff;
++    /* Pure white background */
++    --neutral-50: #fafafa;
++    /* Lightest gray background */
++    --neutral-100: #f5f5f5;
++    /* Light gray module background */
++    --neutral-200: #e5e5e5;
++    /* Light border/separator */
++    --neutral-300: #d4d4d4;
++    /* Medium light border */
++    --neutral-400: #a3a3a3;
++    /* Disabled text */
++    --neutral-500: #737373;
++    /* Secondary text */
++    --neutral-600: #525252;
++    /* Primary text */
++    --neutral-700: #404040;
++    /* High contrast text */
++    --neutral-800: #262626;
++    /* Near black */
++    --neutral-900: #171717;
++    /* Darkest elements */
++
++    /* Light theme semantic colors */
++    --bg-primary: var(--neutral-0);
++    --bg-secondary: var(--neutral-50);
++    --bg-tertiary: var(--neutral-100);
++    --bg-elevated: var(--neutral-0);
++
++    --text-primary: var(--neutral-700);
++    --text-secondary: var(--neutral-500);
++    --text-disabled: var(--neutral-400);
++    --text-interactive: var(--neutral-800);
++    --text-error: var(--neutral-800);
++
++    --border-light: var(--neutral-200);
++    --border-medium: var(--neutral-300);
++    --border-strong: var(--neutral-400);
++
++    --shadow-light: rgba(0, 0, 0, 0.05);
++    --shadow-medium: rgba(0, 0, 0, 0.1);
++    --shadow-strong: rgba(0, 0, 0, 0.15);
++
++    /* Interactive states using opacity shifts */
++    --state-hover: rgba(0, 0, 0, 0.04);
++    --state-active: rgba(0, 0, 0, 0.08);
++    --state-selected: rgba(0, 0, 0, 0.12);
++
++    /* Status colors - monochromatic approach */
++    --status-success-bg: var(--neutral-100);
++    --status-success-text: var(--neutral-700);
++    --status-error-bg: var(--neutral-100);
++    --status-error-text: var(--neutral-800);
++    --status-warning-bg: var(--neutral-100);
++    --status-warning-text: var(--neutral-700);
++
++    /* Layout constants */
++    --header-height: 64px;
++    --sidebar-width: 400px;
++}
++
++[data-theme="dark"] {
++    /* Monochromatic Neutral Scale - Dark Theme */
++    /* Inverted scale: near-black to white with successive lightening layers */
++    --neutral-0: #0a0a0a;
++    /* Near black background */
++    --neutral-50: #171717;
++    /* Dark background */
++    --neutral-100: #262626;
++    /* Dark module background */
++    --neutral-200: #404040;
++    /* Dark border/separator */
++    --neutral-300: #525252;
++    /* Medium dark border */
++    --neutral-400: #737373;
++    /* Disabled text on dark */
++    --neutral-500: #a3a3a3;
++    /* Secondary text on dark */
++    --neutral-600: #d4d4d4;
++    /* Primary text on dark */
++    --neutral-700: #e5e5e5;
++    /* High contrast text on dark */
++    --neutral-800: #f5f5f5;
++    /* Near white */
++    --neutral-900: #ffffff;
++    /* Pure white */
++
++    /* Dark theme semantic colors */
++    --bg-primary: var(--neutral-0);
++    --bg-secondary: var(--neutral-50);
++    --bg-tertiary: var(--neutral-100);
++    --bg-elevated: var(--neutral-100);
++
++    --text-primary: var(--neutral-700);
++    --text-secondary: var(--neutral-500);
++    --text-disabled: var(--neutral-400);
++    --text-interactive: var(--neutral-800);
++    --text-error: var(--neutral-800);
++
++    --border-light: var(--neutral-200);
++    --border-medium: var(--neutral-300);
++    --border-strong: var(--neutral-400);
++
++    --shadow-light: rgba(0, 0, 0, 0.2);
++    --shadow-medium: rgba(0, 0, 0, 0.3);
++    --shadow-strong: rgba(0, 0, 0, 0.4);
++
++    /* Interactive states for dark theme */
++    --state-hover: rgba(255, 255, 255, 0.04);
++    --state-active: rgba(255, 255, 255, 0.08);
++    --state-selected: rgba(255, 255, 255, 0.12);
++
++    /* Status colors - maintaining readability on dark */
++    --status-success-bg: var(--neutral-100);
++    --status-success-text: var(--neutral-700);
++    --status-error-bg: var(--neutral-100);
++    --status-error-text: var(--neutral-800);
++    --status-warning-bg: var(--neutral-100);
++    --status-warning-text: var(--neutral-700);
++}
++
++* {
++    box-sizing: border-box;
++}
++
++body,
++html {
++    height: 100%;
++    margin: 0;
++    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
++    background-color: var(--bg-primary);
++    color: var(--text-primary);
++    transition: background-color 0.2s ease, color 0.2s ease;
++}
++
++.hidden {
++    display: none !important;
++}
++
++/* ==========================================
++   HEADER STYLES
++   ========================================== */
++
++.header {
++    position: fixed;
++    top: 0;
++    left: 0;
++    right: 0;
++    height: var(--header-height);
++    background-color: var(--bg-elevated);
++    border-bottom: 1px solid var(--border-light);
++    display: flex;
++    align-items: center;
++    justify-content: space-between;
++    padding: 0 1.5rem;
++    z-index: 1000;
++    backdrop-filter: blur(10px);
++    -webkit-backdrop-filter: blur(10px);
++    box-shadow: var(--shadow-light);
++}
++
++.header-left {
++    display: flex;
++    align-items: center;
++    gap: 1rem;
++}
++
++.logo {
++    display: flex;
++    align-items: center;
++    gap: 0.5rem;
++    font-weight: 600;
++    font-size: 1.25rem;
++    color: var(--text-primary);
++    text-decoration: none;
++    transition: color 0.2s ease;
++}
++
++.logo:hover {
++    color: var(--text-interactive);
++}
++
++.icon-logo {
++    width: 32px;
++    height: 32px;
++    background: var(--bg-tertiary);
++    border: 1px solid var(--border-medium);
++    border-radius: 8px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    padding: 4px;
++    transition: all 0.2s ease;
++}
++
++.icon-logo:hover {
++    background: var(--state-hover);
++    transform: translateY(-1px);
++    box-shadow: var(--shadow-medium);
++}
++
++.logo-image {
++    width: 24px;
++    height: 24px;
++    object-fit: contain;
++    transition: opacity 0.2s ease;
++}
++
++.github-link {
++    display: flex;
++    align-items: center;
++    gap: 0.5rem;
++    padding: 0.5rem 1rem;
++    background-color: var(--bg-secondary);
++    border: 1px solid var(--border-light);
++    border-radius: 6px;
++    text-decoration: none;
++    color: var(--text-secondary);
++    font-weight: 500;
++    transition: all 0.2s ease;
++}
++
++.github-link:hover {
++    background-color: var(--state-hover);
++    color: var(--text-primary);
++    border-color: var(--border-medium);
++}
++
++.header-right {
++    display: flex;
++    align-items: center;
++    gap: 0.75rem;
++}
++
++.control-group {
++    display: flex;
++    align-items: center;
++    gap: 0.5rem;
++    background-color: var(--bg-secondary);
++    border: 1px solid var(--border-light);
++    border-radius: 8px;
++    padding: 0.25rem;
++}
++
++.theme-toggle,
++.language-selector select {
++    background: none;
++    border: none;
++    padding: 0.5rem;
++    border-radius: 6px;
++    color: var(--text-secondary);
++    cursor: pointer;
++    transition: all 0.2s ease;
++}
++
++.theme-toggle:hover,
++.language-selector select:hover {
++    background-color: var(--state-hover);
++    color: var(--text-primary);
++}
++
++.theme-toggle {
++    width: 36px;
++    height: 36px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++}
++
++/* ==========================================
++   MAIN LAYOUT
++   ========================================== */
++
++.main-container {
++    height: 100vh;
++    padding-top: var(--header-height);
++    display: flex;
++    flex-direction: column;
++    overflow: hidden;
++}
++
++.content-wrapper {
++    flex: 1;
++    display: flex;
++    min-height: 0;
++    overflow: hidden;
++}
++
++.sidebar {
++    width: var(--sidebar-width);
++    min-width: 320px;
++    background-color: var(--bg-secondary);
++    border-right: 1px solid var(--border-light);
++    display: flex;
++    flex-direction: column;
++    overflow: hidden;
++}
++
++.sidebar-header {
++    padding: 1.5rem;
++    border-bottom: 1px solid var(--border-light);
++    background-color: var(--bg-primary);
++}
++
++.file-input-area {
++    background-color: var(--bg-tertiary);
++    border: 2px dashed var(--border-medium);
++    border-radius: 8px;
++    padding: 1.5rem;
++    text-align: center;
++    transition: all 0.2s ease;
++}
++
++.file-input-area:hover {
++    border-color: var(--border-strong);
++    background-color: var(--state-hover);
++}
++
++.file-input {
++    margin-bottom: 0.75rem;
++}
++
++.file-input input[type="file"] {
++    width: 100%;
++    padding: 0.75rem;
++    border: 1px solid var(--border-medium);
++    border-radius: 6px;
++    background-color: var(--bg-primary);
++    color: var(--text-primary);
++    cursor: pointer;
++    transition: all 0.2s ease;
++}
++
++.file-input input[type="file"]:hover {
++    border-color: var(--border-strong);
++    background-color: var(--state-hover);
++}
++
++.file-input-text {
++    color: var(--text-secondary);
++    font-size: 0.875rem;
++    margin: 0;
++}
++
++.sidebar-content {
++    flex: 1;
++    overflow-y: auto;
++    padding: 1rem;
++}
++
++.main-content {
++    flex: 1;
++    background-color: var(--bg-primary);
++    overflow: hidden;
++    display: flex;
++    flex-direction: column;
++}
++
++.preview-header {
++    padding: 1.5rem;
++    border-bottom: 1px solid var(--border-color);
++    background-color: var(--bg-secondary);
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++}
++
++.preview-header h2 {
++    margin: 0;
++    font-size: 1.25rem;
++    font-weight: 600;
++    color: var(--text-primary);
++}
++
++.preview-header-actions {
++    display: flex;
++    gap: 0.5rem;
++}
++
++.preview-action-btn {
++    background: none;
++    border: 1px solid var(--border-color);
++    border-radius: 6px;
++    padding: 0.5rem;
++    cursor: pointer;
++    color: var(--text-secondary);
++    transition: all 0.2s ease;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    width: 36px;
++    height: 36px;
++}
++
++.preview-action-btn:hover {
++    background-color: var(--bg-tertiary);
++    color: var(--text-primary);
++    border-color: var(--accent-primary);
++}
++
++.preview-content {
++    flex: 1;
++    overflow-y: auto;
++    padding: 1.5rem;
++}
++
++/* ==========================================
++   CHAT ITEMS
++   ========================================== */
++
++.chat-item {
++    background-color: var(--bg-primary);
++    border: 1px solid var(--border-light);
++    border-radius: 8px;
++    padding: 1rem;
++    margin-bottom: 0.75rem;
++    cursor: pointer;
++    transition: all 0.2s ease;
++}
++
++.chat-item:hover {
++    background-color: var(--state-hover);
++    border-color: var(--border-medium);
++    transform: translateY(-1px);
++    box-shadow: var(--shadow-medium);
++}
++
++.chat-item.selected {
++    background-color: var(--bg-tertiary);
++    border-color: var(--border-strong);
++    box-shadow: var(--shadow-medium);
++}
++
++.chat-item.selected .chat-info {
++    color: var(--text-secondary);
++}
++
++.chat-title {
++    font-weight: 600;
++    font-size: 0.875rem;
++    margin-bottom: 0.5rem;
++    line-height: 1.4;
++    color: var(--text-primary);
++}
++
++.chat-info {
++    font-size: 0.75rem;
++    color: var(--text-secondary);
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++    gap: 0.5rem;
++}
++
++.download-btn {
++    background-color: var(--bg-tertiary);
++    color: var(--text-primary);
++    border: 1px solid var(--border-medium);
++    padding: 0.375rem 0.75rem;
++    border-radius: 4px;
++    font-size: 0.75rem;
++    font-weight: 500;
++    cursor: pointer;
++    transition: all 0.2s ease;
++}
++
++.download-btn:hover {
++    background-color: var(--state-hover);
++    border-color: var(--border-strong);
++    transform: translateY(-1px);
++}
++
++.chat-item.selected .download-btn {
++    background-color: var(--neutral-600);
++    color: var(--neutral-0);
++    border-color: var(--neutral-600);
++}
++
++.chat-item.selected .download-btn:hover {
++    background-color: var(--neutral-700);
++    border-color: var(--neutral-700);
++}
++
++/* ==========================================
++   MESSAGES
++   ========================================== */
++
++.message {
++    margin-bottom: 1.5rem;
++    padding: 1.25rem;
++    border-radius: 12px;
++    border: 1px solid var(--border-light);
++    display: flex;
++    gap: 1rem;
++    align-items: flex-start;
++    background-color: var(--bg-primary);
++}
++
++.message.user {
++    background-color: var(--bg-secondary);
++    margin-left: 2rem;
++    border-left: 3px solid var(--neutral-400);
++}
++
++.message.assistant {
++    background-color: var(--bg-tertiary);
++    margin-right: 2rem;
++    border-left: 3px solid var(--neutral-600);
++}
++
++background-color: var(--bg-tertiary);
++margin-left: 2rem;
++border-left: 4px solid var(--accent-primary);
++}
++
++.message.assistant {
++    background-color: var(--bg-secondary);
++    margin-right: 2rem;
++    border-left: 4px solid var(--success-color);
++}
++
++.message-icon {
++    flex-shrink: 0;
++    width: 32px;
++    height: 32px;
++    border-radius: 50%;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++    font-size: 16px;
++    font-weight: 600;
++    margin-top: 0.125rem;
++}
++
++.message.user .message-icon {
++    background-color: var(--accent-primary);
++    color: white;
++}
++
++.message.assistant .message-icon {
++    background-color: var(--success-color);
++    color: white;
++}
++
++.message-content {
++    flex: 1;
++    white-space: pre-wrap;
++    word-wrap: break-word;
++    line-height: 1.6;
++    color: var(--text-primary);
++}
++
++/* Markdown styles */
++.message-content h1,
++.message-content h2,
++.message-content h3,
++.message-content h4,
++.message-content h5,
++.message-content h6 {
++    color: var(--text-primary);
++    margin: 1em 0 0.5em 0;
++    font-weight: 600;
++}
++
++.message-content h1 {
++    font-size: 1.5em;
++}
++
++.message-content h2 {
++    font-size: 1.3em;
++}
++
++.message-content h3 {
++    font-size: 1.1em;
++}
++
++.message-content p {
++    margin: 0.75em 0;
++}
++
++.message-content code {
++    background-color: var(--bg-tertiary);
++    padding: 0.125em 0.25em;
++    border-radius: 4px;
++    font-family: 'Courier New', monospace;
++    font-size: 0.875em;
++}
++
++.message-content pre {
++    background-color: var(--bg-tertiary);
++    padding: 1em;
++    border-radius: 8px;
++    overflow-x: auto;
++    margin: 1em 0;
++}
++
++.message-content pre code {
++    background: none;
++    padding: 0;
++}
++
++.message-content ul,
++.message-content ol {
++    margin: 0.75em 0;
++    padding-left: 1.5em;
++}
++
++.message-content li {
++    margin: 0.25em 0;
++}
++
++.message-content blockquote {
++    border-left: 4px solid var(--border-color);
++    margin: 1em 0;
++    padding: 0.5em 1em;
++    background-color: var(--bg-tertiary);
++    font-style: italic;
++}
++
++.message-content strong {
++    font-weight: 600;
++}
++
++.message-content em {
++    font-style: italic;
++}
++
++.message-content a {
++    color: var(--accent-primary);
++    text-decoration: none;
++}
++
++.message-content a:hover {
++    text-decoration: underline;
++}
++
++/* ==========================================
++   MARKDOWN EDITOR/VIEWER
++   ========================================== */
++
++.markdown-editor,
++.markdown-viewer {
++    height: 100%;
++    display: flex;
++    flex-direction: column;
++}
++
++.editor-header,
++.viewer-header {
++    padding: 1rem 1.5rem;
++    border-bottom: 1px solid var(--border-color);
++    background-color: var(--bg-secondary);
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++    flex-shrink: 0;
++}
++
++.editor-header h3,
++.viewer-header h3 {
++    margin: 0;
++    font-size: 1.1rem;
++    font-weight: 600;
++    color: var(--text-primary);
++}
++
++.editor-info,
++.viewer-info {
++    font-size: 0.875rem;
++    color: var(--text-secondary);
++    font-weight: 500;
++}
++
++.markdown-source {
++    flex: 1;
++    width: 100%;
++    padding: 1.5rem;
++    border: none;
++    outline: none;
++    background-color: var(--bg-primary);
++    color: var(--text-primary);
++    font-family: 'Courier New', Monaco, monospace;
++    font-size: 0.875rem;
++    line-height: 1.6;
++    resize: none;
++    white-space: pre-wrap;
++    word-wrap: break-word;
++    tab-size: 2;
++}
++
++.markdown-source:focus {
++    background-color: var(--bg-secondary);
++}
++
++.conversation-content {
++    flex: 1;
++    overflow-y: auto;
++    padding: 1.5rem;
++}
++
++/* Enhanced message styles for viewer mode */
++.markdown-viewer .message {
++    margin-bottom: 2rem;
++    padding: 0;
++    border: none;
++    background: none;
++    flex-direction: column;
++    gap: 0.75rem;
++    align-items: stretch;
++}
++
++.markdown-viewer .message-header {
++    display: flex;
++    align-items: center;
++    gap: 0.75rem;
++    padding-bottom: 0.75rem;
++    border-bottom: 2px solid var(--border-color);
++    margin-bottom: 1rem;
++}
++
++.markdown-viewer .message-header .message-icon {
++    width: 28px;
++    height: 28px;
++    border-radius: 6px;
++    background: none;
++    padding: 4px;
++    display: flex;
++    align-items: center;
++    justify-content: center;
++}
++
++.markdown-viewer .message-header .message-icon img {
++    width: 20px;
++    height: 20px;
++    object-fit: contain;
++}
++
++.markdown-viewer .message.user .message-header {
++    border-bottom-color: var(--accent-primary);
++}
++
++.markdown-viewer .message.assistant .message-header {
++    border-bottom-color: var(--success-color);
++}
++
++.markdown-viewer .message-role {
++    margin: 0;
++    font-size: 1.1rem;
++    font-weight: 600;
++    color: var(--text-primary);
++}
++
++.markdown-viewer .message.user .message-role {
++    color: var(--accent-primary);
++}
++
++.markdown-viewer .message.assistant .message-role {
++    color: var(--success-color);
++}
++
++.markdown-content {
++    padding-left: 0;
++    color: var(--text-primary);
++    line-height: 1.7;
++}
++
++/* Enhanced markdown content styles */
++.markdown-content h1,
++.markdown-content h2,
++.markdown-content h3 {
++    margin-top: 1.5em;
++    margin-bottom: 0.75em;
++    color: var(--text-primary);
++    font-weight: 600;
++    display: flex;
++    align-items: center;
++    gap: 0.5rem;
++}
++
++.markdown-content h1 {
++    font-size: 1.75rem;
++    border-bottom: 2px solid var(--border-color);
++    padding-bottom: 0.5rem;
++}
++
++.markdown-content h2 {
++    font-size: 1.45rem;
++    display: flex;
++    align-items: center;
++    gap: 0.75rem;
++}
++
++.markdown-content h2 img {
++    width: 24px;
++    height: 24px;
++    object-fit: contain;
++}
++
++.markdown-content h3 {
++    font-size: 1.25rem;
++}
++
++.markdown-content p {
++    margin: 1em 0;
++    line-height: 1.7;
++}
++
++.markdown-content ul,
++.markdown-content ol {
++    margin: 1em 0;
++    padding-left: 2rem;
++}
++
++.markdown-content li {
++    margin: 0.5em 0;
++    line-height: 1.6;
++}
++
++.markdown-content blockquote {
++    border-left: 4px solid var(--accent-primary);
++    margin: 1.5em 0;
++    padding: 1rem 1.5rem;
++    background-color: var(--bg-tertiary);
++    border-radius: 0 8px 8px 0;
++    font-style: italic;
++}
++
++.markdown-content pre {
++    background-color: var(--bg-tertiary);
++    border: 1px solid var(--border-color);
++    border-radius: 8px;
++    padding: 1.25rem;
++    overflow-x: auto;
++    margin: 1.5em 0;
++    font-family: 'Courier New', Monaco, monospace;
++    font-size: 0.875rem;
++    line-height: 1.5;
++}
++
++.markdown-content code {
++    background-color: var(--bg-tertiary);
++    border: 1px solid var(--border-color);
++    padding: 0.25em 0.5em;
++    border-radius: 4px;
++    font-family: 'Courier New', Monaco, monospace;
++    font-size: 0.875em;
++}
++
++.markdown-content pre code {
++    background: none;
++    border: none;
++    padding: 0;
++}
++
++.markdown-content a {
++    color: var(--accent-primary);
++    text-decoration: none;
++    font-weight: 500;
++}
++
++.markdown-content a:hover {
++    text-decoration: underline;
++}
++
++/* ==========================================
++   STATUS MESSAGES
++   ========================================== */
++
++.status-container {
++    padding: 1rem;
++    border-bottom: 1px solid var(--border-light);
++}
++
++.error {
++    color: var(--status-error-text);
++    background-color: var(--status-error-bg);
++    padding: 0.75rem 1rem;
++    border-radius: 6px;
++    border-left: 4px solid var(--neutral-600);
++    font-size: 0.875rem;
++    font-weight: 500;
++}
++
++.success {
++    color: var(--status-success-text);
++    background-color: var(--status-success-bg);
++    padding: 0.75rem 1rem;
++    border-radius: 6px;
++    border-left: 4px solid var(--neutral-600);
++    font-size: 0.875rem;
++    font-weight: 500;
++}
++
++.warning {
++    color: var(--status-warning-text);
++    background-color: var(--status-warning-bg);
++    padding: 0.75rem 1rem;
++    border-radius: 6px;
++    border-left: 4px solid var(--neutral-500);
++    font-size: 0.875rem;
++    font-weight: 500;
++}
++
++/* ==========================================
++   RESPONSIVE DESIGN
++   ========================================== */
++
++@media (max-width: 1024px) {
++    :root {
++        --sidebar-width: 350px;
++    }
++
++    .header {
++        padding: 0 1rem;
++    }
++
++    .github-link span {
++        display: none;
++    }
++}
++
++@media (max-width: 768px) {
++    :root {
++        --sidebar-width: 100%;
++        --header-height: 56px;
++    }
++
++    .header {
++        padding: 0 1rem;
++    }
++
++    .header-left {
++        gap: 0.5rem;
++    }
++
++    .logo {
++        font-size: 1.125rem;
++    }
++
++    .github-link {
++        padding: 0.5rem;
++    }
++
++    .content-wrapper {
++        flex-direction: column;
++    }
++
++    .sidebar {
++        width: 100%;
++        max-height: 40vh;
++        border-right: none;
++        border-bottom: 1px solid var(--border-color);
++    }
++
++    .main-content {
++        min-height: 60vh;
++    }
++
++    .message.user {
++        margin-left: 0.5rem;
++    }
++
++    .message.assistant {
++        margin-right: 0.5rem;
++    }
++
++    .sidebar-header,
++    .preview-content {
++        padding: 1rem;
++    }
++}
++
++@media (max-width: 480px) {
++    .header {
++        padding: 0 0.75rem;
++    }
++
++    .control-group {
++        gap: 0.25rem;
++        padding: 0.125rem;
++    }
++
++    .theme-toggle,
++    .language-selector select {
++        padding: 0.375rem;
++    }
++
++    .message {
++        margin-bottom: 1rem;
++        padding: 1rem;
++    }
++
++    .message.user,
++    .message.assistant {
++        margin-left: 0;
++        margin-right: 0;
++    }
++}
++
++/* ==========================================
++   UTILITIES
++   ========================================== */
++
++.hidden {
++    display: none !important;
++}
++
++.loading {
++    opacity: 0.6;
++    pointer-events: none;
++}
++
++/* Custom scrollbar */
++.sidebar-content::-webkit-scrollbar,
++.preview-content::-webkit-scrollbar {
++    width: 6px;
++}
++
++.sidebar-content::-webkit-scrollbar-track,
++.preview-content::-webkit-scrollbar-track {
++    background: var(--bg-secondary);
++}
++
++.sidebar-content::-webkit-scrollbar-thumb,
++.preview-content::-webkit-scrollbar-thumb {
++    background: var(--border-color);
++    border-radius: 3px;
++}
++
++.sidebar-content::-webkit-scrollbar-thumb:hover,
++.preview-content::-webkit-scrollbar-thumb:hover {
++    background: var(--text-muted);
++}
+\ No newline at end of file
+diff --git a/assets/images/OpenAI-black-monoblossom.svg b/assets/images/OpenAI-black-monoblossom.svg
+new file mode 100644
+index 0000000..832fa6a
+--- /dev/null
++++ b/assets/images/OpenAI-black-monoblossom.svg
+@@ -0,0 +1,15 @@
++<svg width="721" height="721" viewBox="0 0 721 721" fill="none" xmlns="http://www.w3.org/2000/svg">
++<g clip-path="url(#clip0_1637_2934)">
++<g clip-path="url(#clip1_1637_2934)">
++<path d="M304.246 294.611V249.028C304.246 245.189 305.687 242.309 309.044 240.392L400.692 187.612C413.167 180.415 428.042 177.058 443.394 177.058C500.971 177.058 537.44 221.682 537.44 269.182C537.44 272.54 537.44 276.379 536.959 280.218L441.954 224.558C436.197 221.201 430.437 221.201 424.68 224.558L304.246 294.611ZM518.245 472.145V363.224C518.245 356.505 515.364 351.707 509.608 348.349L389.174 278.296L428.519 255.743C431.877 253.826 434.757 253.826 438.115 255.743L529.762 308.523C556.154 323.879 573.905 356.505 573.905 388.171C573.905 424.636 552.315 458.225 518.245 472.141V472.145ZM275.937 376.182L236.592 353.152C233.235 351.235 231.794 348.354 231.794 344.515V238.956C231.794 187.617 271.139 148.749 324.4 148.749C344.555 148.749 363.264 155.468 379.102 167.463L284.578 222.164C278.822 225.521 275.942 230.319 275.942 237.039V376.186L275.937 376.182ZM360.626 425.122L304.246 393.455V326.283L360.626 294.616L417.002 326.283V393.455L360.626 425.122ZM396.852 570.989C376.698 570.989 357.989 564.27 342.151 552.276L436.674 497.574C442.431 494.217 445.311 489.419 445.311 482.699V343.552L485.138 366.582C488.495 368.499 489.936 371.379 489.936 375.219V480.778C489.936 532.117 450.109 570.985 396.852 570.985V570.989ZM283.134 463.99L191.486 411.211C165.094 395.854 147.343 363.229 147.343 331.562C147.343 294.616 169.415 261.509 203.48 247.593V356.991C203.48 363.71 206.361 368.508 212.117 371.866L332.074 441.437L292.729 463.99C289.372 465.907 286.491 465.907 283.134 463.99ZM277.859 542.68C223.639 542.68 183.813 501.895 183.813 451.514C183.813 447.675 184.294 443.836 184.771 439.997L279.295 494.698C285.051 498.056 290.812 498.056 296.568 494.698L417.002 425.127V470.71C417.002 474.549 415.562 477.429 412.204 479.346L320.557 532.126C308.081 539.323 293.206 542.68 277.854 542.68H277.859ZM396.852 599.776C454.911 599.776 503.37 558.513 514.41 503.812C568.149 489.896 602.696 439.515 602.696 388.176C602.696 354.587 588.303 321.962 562.392 298.45C564.791 288.373 566.231 278.296 566.231 268.224C566.231 199.611 510.571 148.267 446.274 148.267C433.322 148.267 420.846 150.184 408.37 154.505C386.775 133.392 357.026 119.958 324.4 119.958C266.342 119.958 217.883 161.22 206.843 215.921C153.104 229.837 118.557 280.218 118.557 331.557C118.557 365.146 132.95 397.771 158.861 421.283C156.462 431.36 155.022 441.437 155.022 451.51C155.022 520.123 210.682 571.466 274.978 571.466C287.931 571.466 300.407 569.549 312.883 565.228C334.473 586.341 364.222 599.776 396.852 599.776Z" fill="black"/>
++</g>
++</g>
++<defs>
++<clipPath id="clip0_1637_2934">
++<rect width="720" height="720" fill="white" transform="translate(0.606934 0.0999756)"/>
++</clipPath>
++<clipPath id="clip1_1637_2934">
++<rect width="484.139" height="479.818" fill="white" transform="translate(118.557 119.958)"/>
++</clipPath>
++</defs>
++</svg>
+diff --git a/assets/images/OpenAI-white-monoblossom.svg b/assets/images/OpenAI-white-monoblossom.svg
+new file mode 100644
+index 0000000..ba36fc2
+--- /dev/null
++++ b/assets/images/OpenAI-white-monoblossom.svg
+@@ -0,0 +1,15 @@
++<svg width="721" height="721" viewBox="0 0 721 721" fill="none" xmlns="http://www.w3.org/2000/svg">
++<g clip-path="url(#clip0_1637_2935)">
++<g clip-path="url(#clip1_1637_2935)">
++<path d="M304.246 295.411V249.828C304.246 245.989 305.687 243.109 309.044 241.191L400.692 188.412C413.167 181.215 428.042 177.858 443.394 177.858C500.971 177.858 537.44 222.482 537.44 269.982C537.44 273.34 537.44 277.179 536.959 281.018L441.954 225.358C436.197 222 430.437 222 424.68 225.358L304.246 295.411ZM518.245 472.945V364.024C518.245 357.304 515.364 352.507 509.608 349.149L389.174 279.096L428.519 256.543C431.877 254.626 434.757 254.626 438.115 256.543L529.762 309.323C556.154 324.679 573.905 357.304 573.905 388.971C573.905 425.436 552.315 459.024 518.245 472.941V472.945ZM275.937 376.982L236.592 353.952C233.235 352.034 231.794 349.154 231.794 345.315V239.756C231.794 188.416 271.139 149.548 324.4 149.548C344.555 149.548 363.264 156.268 379.102 168.262L284.578 222.964C278.822 226.321 275.942 231.119 275.942 237.838V376.986L275.937 376.982ZM360.626 425.922L304.246 394.255V327.083L360.626 295.416L417.002 327.083V394.255L360.626 425.922ZM396.852 571.789C376.698 571.789 357.989 565.07 342.151 553.075L436.674 498.374C442.431 495.017 445.311 490.219 445.311 483.499V344.352L485.138 367.382C488.495 369.299 489.936 372.179 489.936 376.018V481.577C489.936 532.917 450.109 571.785 396.852 571.785V571.789ZM283.134 464.79L191.486 412.01C165.094 396.654 147.343 364.029 147.343 332.362C147.343 295.416 169.415 262.309 203.48 248.393V357.791C203.48 364.51 206.361 369.308 212.117 372.665L332.074 442.237L292.729 464.79C289.372 466.707 286.491 466.707 283.134 464.79ZM277.859 543.48C223.639 543.48 183.813 502.695 183.813 452.314C183.813 448.475 184.294 444.636 184.771 440.797L279.295 495.498C285.051 498.856 290.812 498.856 296.568 495.498L417.002 425.927V471.509C417.002 475.349 415.562 478.229 412.204 480.146L320.557 532.926C308.081 540.122 293.206 543.48 277.854 543.48H277.859ZM396.852 600.576C454.911 600.576 503.37 559.313 514.41 504.612C568.149 490.696 602.696 440.315 602.696 388.976C602.696 355.387 588.303 322.762 562.392 299.25C564.791 289.173 566.231 279.096 566.231 269.024C566.231 200.411 510.571 149.067 446.274 149.067C433.322 149.067 420.846 150.984 408.37 155.305C386.775 134.192 357.026 120.758 324.4 120.758C266.342 120.758 217.883 162.02 206.843 216.721C153.104 230.637 118.557 281.018 118.557 332.357C118.557 365.946 132.95 398.571 158.861 422.083C156.462 432.16 155.022 442.237 155.022 452.309C155.022 520.922 210.682 572.266 274.978 572.266C287.931 572.266 300.407 570.349 312.883 566.028C334.473 587.141 364.222 600.576 396.852 600.576Z" fill="white"/>
++</g>
++</g>
++<defs>
++<clipPath id="clip0_1637_2935">
++<rect width="720" height="720" fill="white" transform="translate(0.606934 0.899902)"/>
++</clipPath>
++<clipPath id="clip1_1637_2935">
++<rect width="484.139" height="479.818" fill="white" transform="translate(118.557 120.758)"/>
++</clipPath>
++</defs>
++</svg>
+diff --git a/assets/images/chat_user_black.svg b/assets/images/chat_user_black.svg
+new file mode 100644
+index 0000000..2390578
+--- /dev/null
++++ b/assets/images/chat_user_black.svg
+@@ -0,0 +1,3 @@
++<?xml version="1.0"?><svg id="Layer_1" style="enable-background:new 0 0 52 52;" version="1.1" viewBox="0 0 52 52" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style type="text/css">
++	.st0{fill:#231F20;}
++</style><g><g><path class="st0" d="M36.1680298,18.8901863c0.9555511,0.3468418,1.330658,1.2833881,1.0363388,2.2305889    c-0.0508118,0.152977-0.1109276,0.3021526-0.1803474,0.4475231c0.2675247-0.1958599,0.2012863-0.2135773-0.1987076-0.0531521    c-0.4603195,0.0321083-0.9030724,0.0633106-1.3657227,0.0520172c-0.4189034-0.0102253-0.7589684,0.0407925-1.0482483-0.3098183    c-0.2402611-0.291193-0.3050575-0.9582386-0.2051392-1.3032894c0.0840378-0.290205,0.5121078-0.942255,0.7900124-1.0746288    c0.3126907-0.1489449,0.9272194-0.0209274,1.2663116-0.0120144c1.4484062,0.0380764,1.4475212-2.2119465,0-2.25    c-0.9901009-0.0260277-1.9314957-0.110033-2.7335167,0.5753307c-0.7217636,0.6167793-1.3795242,1.5407009-1.559042,2.4835567    c-0.3901367,2.0490475,0.914957,3.9714432,2.9910145,4.123661c0.9642525,0.0706997,2.1190987,0.0948544,3.028183-0.2842579    c0.8260651-0.3444939,1.1934891-1.1011639,1.4247589-1.9306297c0.5988998-2.1480141-0.6256142-4.1305294-2.6477547-4.8645153    C35.4028358,16.2257023,34.8153458,18.3991947,36.1680298,18.8901863L36.1680298,18.8901863z"/></g><g><path class="st0" d="M26.5382805,19.1640854c0.7869072,0.1818237,0.6359539,1.4028568,0.2163162,1.9043484    c-0.4871159,0.5821323-1.7244453,0.6948338-2.4085045,0.4782429c-0.5115223-0.1619606-0.4752026-0.3618603-0.5312595-0.8701534    c-0.0352612-0.3197365-0.1105766-0.8321476,0.0450935-1.1020489c0.3996544-0.6929169,1.5152626-1.2602177,2.2133389-0.7063789    c1.1227989,0.8908043,2.725338-0.6910248,1.5909901-1.5909901c-1.8464508-1.4649343-4.0059643-0.8991604-5.4948177,0.8116436    c-0.7327442,0.84198-0.6744137,1.8667049-0.5902519,2.9265175c0.0893784,1.1254845,0.5489426,2.0372982,1.6128349,2.5135517    c1.7853222,0.799202,4.5545673,0.3084679,5.5946064-1.4526691c1.0490608-1.7764111,0.5825176-4.565794-1.6502075-5.0816917    C25.7272968,16.6688633,25.1257877,18.8377113,26.5382805,19.1640854L26.5382805,19.1640854z"/></g><g><path class="st0" d="M15.7125397,18.8753052c0.6996326,0.1733227,0.9444675,0.9768562,0.6328602,1.6009846    c-0.3927412,0.7866344-1.4569807,0.668705-2.1976919,0.5756512c-0.8390188-0.105402-1.0803595-0.8063488-0.8686457-1.6048183    c0.1004725-0.3789272,0.1652069-0.395195,0.5792379-0.471283c0.2464743-0.0452957,1.0228567-0.0432777,1.0251532-0.0408535    c0.997715,1.0535183,2.5868263-0.5394573,1.5909901-1.5909901c-1.2272701-1.2959137-4.3929424-0.7872829-5.1738634,0.8208408    c-0.8474321,1.7450886-0.1910772,4.3704491,1.7682419,4.965004c1.8825483,0.5712585,4.3375998,0.2666264,5.2797537-1.6511135    c0.9083366-1.8488998,0.0347748-4.2595825-2.0378971-4.7730503    C14.9051762,16.3574886,14.3055487,18.5267487,15.7125397,18.8753052L15.7125397,18.8753052z"/></g><g><path class="st0" d="M45.8433952,16.5035038c4.3010483,7.0789127-3.8007813,13.0331173-9.3747139,15.6799984    c-4.2099457,1.9991684-14.5717506,4.6132889-18.1659184,0.3882942c-0.3816833-0.4486694-1.2057991-0.4221306-1.5909901,0    c-2.7158184,2.976284-6.0513449,4.2389259-9.0587578,6.6825256c0.5889659,0.4544334,1.1779332,0.9088707,1.7668996,1.3633041    c1.5701771-2.2512054,4.3394442-6.5383263,2.5851736-9.2341404c-1.1233568-1.7262783-4.3968267-2.0193214-5.9954324-3.5802078    C2.032594,23.9200497,1.1573644,17.7562542,4.8637085,13.4837036c5.0618305-5.8351097,14.131815-5.9797873,21.2913189-6.3421254    c4.4204712-0.2237167,8.7247334-0.4315901,12.6380253,1.9448342c3.1595459,1.9186974,5.8490067,4.9478197,8.1960869,7.7599354    c0.9288101,1.1128426,2.5130997-0.4861774,1.5909882-1.5909901C43.3431778,8.9807825,38.2024498,4.6856937,29.8447189,4.7721243    C22.7322788,4.8456769,12.3488655,4.7112827,6.3728371,9.1060696c-5.0223236,3.6934299-7.5035992,8.4938831-5.4515367,14.6916008    c0.8911471,2.6914749,2.6164672,5.0606956,4.8717508,6.7702942c0.5639758,0.4275169,3.9667134,1.6861706,4.2834992,2.2303638    c1.0480213,1.800354-1.5955601,5.244381-2.5994444,6.6836815c-0.7856398,1.1263924,0.8507528,2.1076965,1.7668991,1.3633041    c3.1049299-2.5228348,6.2617683-3.6172867,9.0587578-6.6825256c-0.5303307,0-1.0606594,0-1.5909901,0    c2.385355,2.8040161,6.2562103,2.5753822,9.67103,2.5115204c4.5559425-0.0852051,8.5274563-1.152401,12.5698566-3.2312889    c6.7841339-3.4888763,13.5009995-10.3931637,8.8335419-18.0751343    C47.0353584,14.1321049,45.0887909,15.2615328,45.8433952,16.5035038L45.8433952,16.5035038z"/></g><g><path class="st0" d="M45.3005791,26.8515511c5.0934181,4.8029633,5.8691673,10.3094559-1.1113243,14.0046272    c-0.509594,0.2697563-0.7374611,1.0527534-0.403595,1.5392151c3.6320114,5.2920418-1.3379631-0.802433-2.9034309-1.597847    c-0.7346001-0.3732452-0.7575607-0.2186356-1.5631371-0.3394775c-1.1494904-0.1724358-2.8367691,0.6532555-4.0442581,0.7594528    c-1.4314842,0.1258965-2.9710197,0.0846024-4.4075851-0.047039c-4.5653458-0.4183464-8.1554298-2.5337563-10.5134048-6.4976234    c-0.7396431-1.2433777-2.6855698-0.112999-1.9428101,1.1356163c3.5970688,6.0468407,9.2564487,7.8794365,16.0392609,7.6783714    c0.8732376-0.0258865,4.3640671-1.0109596,5.1094666-0.7989349c-0.8240929-0.2344055,1.851284,2.0223122,1.8989334,2.066555    c1.5659256,1.4538574,3.0520287,2.7416458,5.2180138,2.4268532c0.434124-0.0630913,0.8809624-0.6438065,0.8259315-1.0848122    c-0.2417145-1.9369431-0.6706276-3.2288094-1.7741699-4.8367348c-0.1345329,0.513073-0.2690659,1.0261421-0.4035988,1.5392151    c3.695858-1.9564285,6.4546623-4.2245636,6.4753609-8.6037407c0.0198936-4.2079411-1.9731178-6.166544-4.9086609-8.9346886    C45.8385162,24.2675571,44.2444382,25.8556366,45.3005791,26.8515511L45.3005791,26.8515511z"/></g></g></svg>
+\ No newline at end of file
+diff --git a/assets/images/chat_user_white.svg b/assets/images/chat_user_white.svg
+new file mode 100644
+index 0000000..9ccda9f
+--- /dev/null
++++ b/assets/images/chat_user_white.svg
+@@ -0,0 +1,3 @@
++<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="Layer_1" style="enable-background:new 0 0 52 52;" version="1.1" viewBox="0 0 52 52" xml:space="preserve"><style type="text/css">
++	.st0{fill:#ffffff;}
++</style><g><g><path class="st0" d="M36.1680298,18.8901863c0.9555511,0.3468418,1.330658,1.2833881,1.0363388,2.2305889    c-0.0508118,0.152977-0.1109276,0.3021526-0.1803474,0.4475231c0.2675247-0.1958599,0.2012863-0.2135773-0.1987076-0.0531521    c-0.4603195,0.0321083-0.9030724,0.0633106-1.3657227,0.0520172c-0.4189034-0.0102253-0.7589684,0.0407925-1.0482483-0.3098183    c-0.2402611-0.291193-0.3050575-0.9582386-0.2051392-1.3032894c0.0840378-0.290205,0.5121078-0.942255,0.7900124-1.0746288    c0.3126907-0.1489449,0.9272194-0.0209274,1.2663116-0.0120144c1.4484062,0.0380764,1.4475212-2.2119465,0-2.25    c-0.9901009-0.0260277-1.9314957-0.110033-2.7335167,0.5753307c-0.7217636,0.6167793-1.3795242,1.5407009-1.559042,2.4835567    c-0.3901367,2.0490475,0.914957,3.9714432,2.9910145,4.123661c0.9642525,0.0706997,2.1190987,0.0948544,3.028183-0.2842579    c0.8260651-0.3444939,1.1934891-1.1011639,1.4247589-1.9306297c0.5988998-2.1480141-0.6256142-4.1305294-2.6477547-4.8645153    C35.4028358,16.2257023,34.8153458,18.3991947,36.1680298,18.8901863L36.1680298,18.8901863z" fill="#ffffff"/></g><g><path class="st0" d="M26.5382805,19.1640854c0.7869072,0.1818237,0.6359539,1.4028568,0.2163162,1.9043484    c-0.4871159,0.5821323-1.7244453,0.6948338-2.4085045,0.4782429c-0.5115223-0.1619606-0.4752026-0.3618603-0.5312595-0.8701534    c-0.0352612-0.3197365-0.1105766-0.8321476,0.0450935-1.1020489c0.3996544-0.6929169,1.5152626-1.2602177,2.2133389-0.7063789    c1.1227989,0.8908043,2.725338-0.6910248,1.5909901-1.5909901c-1.8464508-1.4649343-4.0059643-0.8991604-5.4948177,0.8116436    c-0.7327442,0.84198-0.6744137,1.8667049-0.5902519,2.9265175c0.0893784,1.1254845,0.5489426,2.0372982,1.6128349,2.5135517    c1.7853222,0.799202,4.5545673,0.3084679,5.5946064-1.4526691c1.0490608-1.7764111,0.5825176-4.565794-1.6502075-5.0816917    C25.7272968,16.6688633,25.1257877,18.8377113,26.5382805,19.1640854L26.5382805,19.1640854z" fill="#ffffff"/></g><g><path class="st0" d="M15.7125397,18.8753052c0.6996326,0.1733227,0.9444675,0.9768562,0.6328602,1.6009846    c-0.3927412,0.7866344-1.4569807,0.668705-2.1976919,0.5756512c-0.8390188-0.105402-1.0803595-0.8063488-0.8686457-1.6048183    c0.1004725-0.3789272,0.1652069-0.395195,0.5792379-0.471283c0.2464743-0.0452957,1.0228567-0.0432777,1.0251532-0.0408535    c0.997715,1.0535183,2.5868263-0.5394573,1.5909901-1.5909901c-1.2272701-1.2959137-4.3929424-0.7872829-5.1738634,0.8208408    c-0.8474321,1.7450886-0.1910772,4.3704491,1.7682419,4.965004c1.8825483,0.5712585,4.3375998,0.2666264,5.2797537-1.6511135    c0.9083366-1.8488998,0.0347748-4.2595825-2.0378971-4.7730503    C14.9051762,16.3574886,14.3055487,18.5267487,15.7125397,18.8753052L15.7125397,18.8753052z" fill="#ffffff"/></g><g><path class="st0" d="M45.8433952,16.5035038c4.3010483,7.0789127-3.8007813,13.0331173-9.3747139,15.6799984    c-4.2099457,1.9991684-14.5717506,4.6132889-18.1659184,0.3882942c-0.3816833-0.4486694-1.2057991-0.4221306-1.5909901,0    c-2.7158184,2.976284-6.0513449,4.2389259-9.0587578,6.6825256c0.5889659,0.4544334,1.1779332,0.9088707,1.7668996,1.3633041    c1.5701771-2.2512054,4.3394442-6.5383263,2.5851736-9.2341404c-1.1233568-1.7262783-4.3968267-2.0193214-5.9954324-3.5802078    C2.032594,23.9200497,1.1573644,17.7562542,4.8637085,13.4837036c5.0618305-5.8351097,14.131815-5.9797873,21.2913189-6.3421254    c4.4204712-0.2237167,8.7247334-0.4315901,12.6380253,1.9448342c3.1595459,1.9186974,5.8490067,4.9478197,8.1960869,7.7599354    c0.9288101,1.1128426,2.5130997-0.4861774,1.5909882-1.5909901C43.3431778,8.9807825,38.2024498,4.6856937,29.8447189,4.7721243    C22.7322788,4.8456769,12.3488655,4.7112827,6.3728371,9.1060696c-5.0223236,3.6934299-7.5035992,8.4938831-5.4515367,14.6916008    c0.8911471,2.6914749,2.6164672,5.0606956,4.8717508,6.7702942c0.5639758,0.4275169,3.9667134,1.6861706,4.2834992,2.2303638    c1.0480213,1.800354-1.5955601,5.244381-2.5994444,6.6836815c-0.7856398,1.1263924,0.8507528,2.1076965,1.7668991,1.3633041    c3.1049299-2.5228348,6.2617683-3.6172867,9.0587578-6.6825256c-0.5303307,0-1.0606594,0-1.5909901,0    c2.385355,2.8040161,6.2562103,2.5753822,9.67103,2.5115204c4.5559425-0.0852051,8.5274563-1.152401,12.5698566-3.2312889    c6.7841339-3.4888763,13.5009995-10.3931637,8.8335419-18.0751343    C47.0353584,14.1321049,45.0887909,15.2615328,45.8433952,16.5035038L45.8433952,16.5035038z" fill="#ffffff"/></g><g><path class="st0" d="M45.3005791,26.8515511c5.0934181,4.8029633,5.8691673,10.3094559-1.1113243,14.0046272    c-0.509594,0.2697563-0.7374611,1.0527534-0.403595,1.5392151c3.6320114,5.2920418-1.3379631-0.802433-2.9034309-1.597847    c-0.7346001-0.3732452-0.7575607-0.2186356-1.5631371-0.3394775c-1.1494904-0.1724358-2.8367691,0.6532555-4.0442581,0.7594528    c-1.4314842,0.1258965-2.9710197,0.0846024-4.4075851-0.047039c-4.5653458-0.4183464-8.1554298-2.5337563-10.5134048-6.4976234    c-0.7396431-1.2433777-2.6855698-0.112999-1.9428101,1.1356163c3.5970688,6.0468407,9.2564487,7.8794365,16.0392609,7.6783714    c0.8732376-0.0258865,4.3640671-1.0109596,5.1094666-0.7989349c-0.8240929-0.2344055,1.851284,2.0223122,1.8989334,2.066555    c1.5659256,1.4538574,3.0520287,2.7416458,5.2180138,2.4268532c0.434124-0.0630913,0.8809624-0.6438065,0.8259315-1.0848122    c-0.2417145-1.9369431-0.6706276-3.2288094-1.7741699-4.8367348c-0.1345329,0.513073-0.2690659,1.0261421-0.4035988,1.5392151    c3.695858-1.9564285,6.4546623-4.2245636,6.4753609-8.6037407c0.0198936-4.2079411-1.9731178-6.166544-4.9086609-8.9346886    C45.8385162,24.2675571,44.2444382,25.8556366,45.3005791,26.8515511L45.3005791,26.8515511z" fill="#ffffff"/></g></g></svg>
+\ No newline at end of file
+diff --git a/assets/js/app.js b/assets/js/app.js
+new file mode 100644
+index 0000000..b71c689
+--- /dev/null
++++ b/assets/js/app.js
+@@ -0,0 +1,629 @@
++// ==========================================
++// SIMPLE MARKDOWN PARSER
++// ==========================================
++
++function parseMarkdown(text) {
++    if (!text || typeof text !== 'string') return '';
++
++    // Get current theme for dynamic icon selection
++    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
++
++    // Dynamic icon paths based on theme
++    const assistantIcon = isDarkTheme ? '/assets/images/OpenAI-white-monoblossom.svg' : '/assets/images/OpenAI-black-monoblossom.svg';
++    const userIcon = isDarkTheme ? '/assets/images/chat_user_white.svg' : '/assets/images/chat_user_black.svg';
++
++    // Convert markdown to HTML
++    let html = text
++        // Headers with dynamic icons (multiple patterns for Assistant and User)
++        .replace(/^## !\[Assistente\]\([^)]*\s+"[^"]*"\)\s*$/gim, `<h2><img src="${assistantIcon}" alt="Assistente" width="24" height="24"> Assistente</h2>`)
++        .replace(/^## !\[Assistant\]\([^)]*\s+"[^"]*"\)\s*$/gim, `<h2><img src="${assistantIcon}" alt="Assistant" width="24" height="24"> Assistant</h2>`)
++        .replace(/^## !\[Usuário\]\([^)]*\s+"[^"]*"\)\s*$/gim, `<h2><img src="${userIcon}" alt="Usuário" width="24" height="24"> Usuário</h2>`)
++        .replace(/^## !\[User\]\([^)]*\s+"[^"]*"\)\s*$/gim, `<h2><img src="${userIcon}" alt="User" width="24" height="24"> User</h2>`)
++
++        // Also handle variations without quotes in title
++        .replace(/^## !\[Assistente\]\([^)]*\)\s*$/gim, `<h2><img src="${assistantIcon}" alt="Assistente" width="24" height="24"> Assistente</h2>`)
++        .replace(/^## !\[Assistant\]\([^)]*\)\s*$/gim, `<h2><img src="${assistantIcon}" alt="Assistant" width="24" height="24"> Assistant</h2>`)
++        .replace(/^## !\[Usuário\]\([^)]*\)\s*$/gim, `<h2><img src="${userIcon}" alt="Usuário" width="24" height="24"> Usuário</h2>`)
++        .replace(/^## !\[User\]\([^)]*\)\s*$/gim, `<h2><img src="${userIcon}" alt="User" width="24" height="24"> User</h2>`)
++
++        // Regular headers
++        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
++        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
++        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
++
++        // Bold and italic
++        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
++        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
++        .replace(/\*(.*?)\*/g, '<em>$1</em>')
++
++        // Code blocks (triple backticks) with language support
++        .replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, lang, code) => {
++            const language = lang ? ` class="language-${lang}"` : '';
++            return `<pre><code${language}>${code.trim()}</code></pre>`;
++        })
++
++        // Inline code
++        .replace(/`([^`]+)`/g, '<code>$1</code>')
++
++        // Links
++        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
++
++        // Lists
++        .replace(/^\* (.+)$/gim, '<li>$1</li>')
++        .replace(/^- (.+)$/gim, '<li>$1</li>')
++
++        // Blockquotes
++        .replace(/^> (.+)$/gim, '<blockquote>$1</blockquote>')
++
++        // Line breaks
++        .replace(/\n\n/g, '</p><p>')
++        .replace(/\n/g, '<br>');
++
++    // Wrap lists properly
++    html = html.replace(/(<li>.*<\/li>)/g, '<ul>$1</ul>');
++    html = html.replace(/<\/ul><br><ul>/g, '');
++
++    // Wrap in paragraphs
++    html = `<p>${html}</p>`
++        .replace(/<p><\/p>/g, '')
++        .replace(/<p>(<h[1-6]>)/g, '$1')
++        .replace(/(<\/h[1-6]>)<\/p>/g, '$1')
++        .replace(/<p>(<pre>)/g, '$1')
++        .replace(/(<\/pre>)<\/p>/g, '$1')
++        .replace(/<p>(<ul>)/g, '$1')
++        .replace(/(<\/ul>)<\/p>/g, '$1')
++        .replace(/<p>(<blockquote>)/g, '$1')
++        .replace(/(<\/blockquote>)<\/p>/g, '$1');
++
++    return html;
++}// ==========================================
++// INTERNATIONALIZATION SYSTEM
++// ==========================================
++
++const translations = {
++    'en': {
++        'title': 'Chat\'s Backup X Viewer',
++        'lang_auto': 'Auto-detect',
++        'lang_en': 'English',
++        'lang_pt_br': 'Português (BR)',
++        'select_file': 'Select the ChatGPT backup JSON file',
++        'select_conversation': 'Select a conversation to view the preview',
++        'error_invalid_file': 'Error: Please select a valid JSON file.',
++        'success_loaded': 'Success: {count} conversation(s) loaded.',
++        'error_invalid_json': 'Error: Invalid JSON file - {error}',
++        'error_unrecognized_format': 'Error: Unrecognized data format.',
++        'error_no_messages': 'Error: Conversation without messages.',
++        'untitled_conversation': 'Untitled conversation',
++        'unknown_date': 'Unknown date',
++        'download_md': 'Download MD',
++        'user': 'User',
++        'assistant': 'Assistant',
++        'conversation': 'conversation',
++        'chatgpt_conversation': 'ChatGPT Conversation',
++        'messages_count': '{count} messages',
++        'data_loaded_from_cache': 'Data loaded from local cache.',
++        'select_conversation_help': 'Choose a conversation from the sidebar to see its content here.',
++        'switch_to_light': 'Switch to light theme',
++        'switch_to_dark': 'Switch to dark theme',
++        'toggle_markdown': 'Toggle raw markdown view',
++        'edit_mode': 'Edit Mode',
++        'view_mode': 'View Mode',
++        'copy_content': 'Copy content to clipboard',
++        'content_copied': 'Content copied to clipboard!'
++    },
++    'pt-br': {
++        'title': 'Chat\'s Backup X Viewer',
++        'lang_auto': 'Auto-detectar',
++        'lang_en': 'English',
++        'lang_pt_br': 'Português (BR)',
++        'select_file': 'Selecione o arquivo JSON do backup do ChatGPT',
++        'select_conversation': 'Selecione uma conversa para visualizar o preview',
++        'error_invalid_file': 'Erro: Por favor selecione um arquivo JSON válido.',
++        'success_loaded': 'Sucesso: {count} conversa(s) carregada(s).',
++        'error_invalid_json': 'Erro: Arquivo JSON inválido - {error}',
++        'error_unrecognized_format': 'Erro: Formato de dados não reconhecido.',
++        'error_no_messages': 'Erro: Conversa sem mensagens.',
++        'untitled_conversation': 'Conversa sem título',
++        'unknown_date': 'Data desconhecida',
++        'download_md': 'Download MD',
++        'user': 'Usuário',
++        'assistant': 'Assistente',
++        'conversation': 'conversa',
++        'chatgpt_conversation': 'Conversa ChatGPT',
++        'messages_count': '{count} mensagens',
++        'data_loaded_from_cache': 'Dados carregados do cache local.',
++        'select_conversation_help': 'Escolha uma conversa na barra lateral para ver seu conteúdo aqui.',
++        'switch_to_light': 'Mudar para tema claro',
++        'switch_to_dark': 'Mudar para tema escuro',
++        'toggle_markdown': 'Alternar visualização markdown raw',
++        'edit_mode': 'Modo Edição',
++        'view_mode': 'Modo Visualização',
++        'copy_content': 'Copiar conteúdo para área de transferência',
++        'content_copied': 'Conteúdo copiado para área de transferência!'
++    }
++};
++
++let currentLanguage = 'en'; // Default fallback
++let currentTheme = 'light'; // Default theme
++
++// ==========================================
++// THEME SYSTEM
++// ==========================================
++
++function detectTheme() {
++    const saved = localStorage.getItem('chatgpt_backup_theme');
++    if (saved) return saved;
++
++    // Auto-detect based on system preference
++    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
++        return 'dark';
++    }
++    return 'light';
++}
++
++function setTheme(theme) {
++    currentTheme = theme;
++    localStorage.setItem('chatgpt_backup_theme', theme);
++    document.documentElement.setAttribute('data-theme', theme);
++
++    // Update theme toggle icons
++    const sunIcon = document.querySelector('.sun-icon');
++    const moonIcon = document.querySelector('.moon-icon');
++
++    if (theme === 'dark') {
++        sunIcon.classList.add('hidden');
++        moonIcon.classList.remove('hidden');
++    } else {
++        sunIcon.classList.remove('hidden');
++        moonIcon.classList.add('hidden');
++    }
++
++    // Update logo dynamically
++    updateLogo(theme);
++
++    // Re-render current chat to update dynamic icons
++    if (currentChat) {
++        renderMessages(currentChat, isMarkdownMode);
++    }
++}
++
++function updateLogo(theme) {
++    const logoImage = document.querySelector('.logo-image');
++    if (logoImage) {
++        const logoSrc = theme === 'dark'
++            ? '/assets/images/OpenAI-white-monoblossom.svg'
++            : '/assets/images/OpenAI-black-monoblossom.svg';
++        logoImage.src = logoSrc;
++    }
++}
++
++function toggleTheme() {
++    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
++    setTheme(newTheme);
++}
++
++function detectLanguage() {
++    const saved = localStorage.getItem('chatgpt_backup_language');
++    if (saved && saved !== 'auto') return saved;
++
++    const browserLang = navigator.language || navigator.userLanguage;
++    if (browserLang.startsWith('pt')) return 'pt-br';
++    return 'en';
++}
++
++function translate(key, params = {}) {
++    const translation = translations[currentLanguage]?.[key] || translations['en'][key] || key;
++    return translation.replace(/\{(\w+)\}/g, (match, param) => params[param] || match);
++}
++
++function updatePageLanguage() {
++    document.querySelectorAll('[data-i18n]').forEach(element => {
++        const key = element.getAttribute('data-i18n');
++        if (element.tagName === 'TITLE') {
++            element.textContent = translate(key);
++        } else {
++            element.textContent = translate(key);
++        }
++    });
++
++    // Update titles for elements with data-i18n-title
++    document.querySelectorAll('[data-i18n-title]').forEach(element => {
++        const key = element.getAttribute('data-i18n-title');
++        element.title = translate(key);
++    });
++
++    // Update dynamic content if loaded
++    if (currentData) {
++        displayChats(currentData);
++    }
++}
++
++function setLanguage(lang) {
++    currentLanguage = lang;
++    localStorage.setItem('chatgpt_backup_language', lang);
++    updatePageLanguage();
++}
++
++// ==========================================
++// APPLICATION LOGIC
++// ==========================================
++// Estado da aplicação
++let currentData = null;
++let selectedChat = null;
++
++// Elementos DOM
++const fileInput = document.getElementById('fileInput');
++const statusDiv = document.getElementById('status');
++const chatsList = document.getElementById('chatsList');
++const previewDiv = document.getElementById('preview');
++
++// Event listeners
++fileInput.addEventListener('change', handleFileLoad);
++
++function handleFileLoad(event) {
++    const file = event.target.files[0];
++    if (!file) return;
++
++    if (!file.name.endsWith('.json')) {
++        showStatus(translate('error_invalid_file'), 'error');
++        return;
++    }
++
++    const reader = new FileReader();
++    reader.onload = function (e) {
++        try {
++            const jsonData = JSON.parse(e.target.result);
++            currentData = jsonData;
++            displayChats(jsonData);
++            const count = Array.isArray(jsonData) ? jsonData.length : '1';
++            showStatus(translate('success_loaded', { count }), 'success');
++
++            // Salvar no localStorage
++            localStorage.setItem('chatgpt_backup_data', JSON.stringify(jsonData));
++        } catch (error) {
++            showStatus(translate('error_invalid_json', { error: error.message }), 'error');
++            console.error('Erro ao parsear JSON:', error);
++        }
++    };
++    reader.readAsText(file);
++}
++
++function showStatus(message, type) {
++    statusDiv.innerHTML = `<div class="${type}">${message}</div>`;
++    setTimeout(() => {
++        statusDiv.innerHTML = '';
++    }, 5000);
++}
++
++function displayChats(data) {
++    chatsList.innerHTML = '';
++
++    // Se é um array de conversas (backup completo)
++    if (Array.isArray(data)) {
++        data.forEach((chat, index) => {
++            const chatItem = createChatItem(chat, index);
++            chatsList.appendChild(chatItem);
++        });
++    }
++    // Se é uma única conversa
++    else if (data.messages) {
++        const chatItem = createChatItem(data, 0);
++        chatsList.appendChild(chatItem);
++    }
++    else {
++        showStatus(translate('error_unrecognized_format'), 'error');
++    }
++}
++
++function createChatItem(chat, index) {
++    const div = document.createElement('div');
++    div.className = 'chat-item';
++    div.dataset.index = index;
++
++    const title = chat.title || translate('untitled_conversation');
++    const messageCount = chat.messages ? chat.messages.length : 0;
++    const createTime = chat.create_time ? new Date(chat.create_time * 1000).toLocaleString() : translate('unknown_date');
++
++    div.innerHTML = `
++            <div class="chat-title">${escapeHtml(title)}</div>
++            <div class="chat-info">
++                ${translate('messages_count', { count: messageCount })} - ${createTime}
++                <button class="download-btn" onclick="downloadChat(${index})">${translate('download_md')}</button>
++            </div>
++        `;
++
++    div.addEventListener('click', (e) => {
++        if (!e.target.classList.contains('download-btn')) {
++            selectChat(index);
++        }
++    });
++
++    return div;
++}
++
++function selectChat(index) {
++    // Remove seleção anterior
++    document.querySelectorAll('.chat-item').forEach(item => {
++        item.classList.remove('selected');
++    });
++
++    // Adiciona seleção atual
++    const selectedItem = document.querySelector(`[data-index="${index}"]`);
++    if (selectedItem) {
++        selectedItem.classList.add('selected');
++    }
++
++    // Mostra preview
++    const chat = Array.isArray(currentData) ? currentData[index] : currentData;
++    selectedChat = chat;
++    showPreview(chat);
++}
++
++let currentChat = null;
++let isMarkdownMode = false;
++
++function showPreview(chat) {
++    const previewContent = document.getElementById('preview');
++    const previewHeader = document.querySelector('.preview-header h2');
++
++    currentChat = chat; // Store current chat for toggle functionality
++
++    if (!chat || !chat.messages) {
++        previewContent.innerHTML = `<p>${translate('error_no_messages')}</p>`;
++        previewHeader.textContent = translate('select_conversation');
++        return;
++    }
++
++    // Update header
++    previewHeader.textContent = chat.title || translate('untitled_conversation');
++
++    renderMessages(chat, isMarkdownMode);
++}
++
++function renderMessages(chat, rawMode = false) {
++    const previewContent = document.getElementById('preview');
++
++    if (rawMode) {
++        // Edit mode - show markdown source in editable textarea
++        let markdown = '';
++        chat.messages.forEach(message => {
++            if (message.role === 'user' || message.role === 'assistant') {
++                const content = Array.isArray(message.content) ? message.content[0] : message.content;
++                if (content) {
++                    const roleText = message.role === 'user' ? translate('user') : translate('assistant');
++                    // Use proper dynamic icon syntax for markdown
++                    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
++                    const iconPath = message.role === 'user'
++                        ? (isDarkTheme ? '/assets/images/chat_user_white.svg' : '/assets/images/chat_user_black.svg')
++                        : (isDarkTheme ? '/assets/images/OpenAI-white-monoblossom.svg' : '/assets/images/OpenAI-black-monoblossom.svg');
++
++                    markdown += `## ![${roleText}](${iconPath} "${roleText}")\n\n${content}\n\n---\n\n`;
++                }
++            }
++        });
++
++        previewContent.innerHTML = `
++      <div class="markdown-editor">
++        <div class="editor-header">
++          <h3>${translate('edit_mode')}</h3>
++          <span class="editor-info">Markdown Source</span>
++        </div>
++        <textarea 
++          class="markdown-source" 
++          spellcheck="false"
++          placeholder="Markdown content..."
++        >${markdown}</textarea>
++      </div>
++    `;
++    } else {
++        // View mode - show rendered HTML
++        let html = '';
++
++        chat.messages.forEach(message => {
++            if (message.role === 'user' || message.role === 'assistant') {
++                const content = Array.isArray(message.content) ? message.content[0] : message.content;
++                if (content) {
++                    // Get dynamic icons based on current theme
++                    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
++                    const userIcon = message.role === 'user'
++                        ? `<img src="${isDarkTheme ? '/assets/images/chat_user_white.svg' : '/assets/images/chat_user_black.svg'}" width="20" height="20" alt="User">`
++                        : `<img src="${isDarkTheme ? '/assets/images/OpenAI-white-monoblossom.svg' : '/assets/images/OpenAI-black-monoblossom.svg'}" width="20" height="20" alt="Assistant">`;
++
++                    const processedContent = parseMarkdown(content);
++                    const roleClass = message.role === 'user' ? 'user' : 'assistant';
++                    const roleText = message.role === 'user' ? translate('user') : translate('assistant');
++
++                    html += `
++            <div class="message ${roleClass}">
++              <div class="message-header">
++                <div class="message-icon">
++                  ${userIcon}
++                </div>
++                <h3 class="message-role">${roleText}</h3>
++              </div>
++              <div class="message-content markdown-content">${processedContent}</div>
++            </div>
++          `;
++                }
++            }
++        });
++
++        previewContent.innerHTML = `
++      <div class="markdown-viewer">
++        <div class="viewer-header">
++          <h3>${translate('view_mode')}</h3>
++          <span class="viewer-info">Rendered Content</span>
++        </div>
++        <div class="conversation-content">
++          ${html}
++        </div>
++      </div>
++    `;
++    }
++}
++
++function downloadChat(index) {
++    const chat = Array.isArray(currentData) ? currentData[index] : currentData;
++    if (!chat) return;
++
++    const title = (chat.title || translate('conversation')).replace(/[^a-z0-9]/gi, '_');
++    let markdown = `# ${chat.title || translate('chatgpt_conversation')}\n\n`;
++
++    if (chat.messages) {
++        chat.messages.forEach(message => {
++            if (message.role === 'user' || message.role === 'assistant') {
++                const content = Array.isArray(message.content) ? message.content[0] : message.content;
++                if (content) {
++                    markdown += `## ${message.role === 'user' ? translate('user') : translate('assistant')}\n\n${content}\n\n---\n\n`;
++                }
++            }
++        });
++    }
++
++    const blob = new Blob([markdown], { type: 'text/markdown' });
++    const url = URL.createObjectURL(blob);
++    const link = document.createElement('a');
++    link.href = url;
++    link.download = `${title}.md`;
++    link.click();
++    URL.revokeObjectURL(url);
++}
++
++function escapeHtml(text) {
++    const div = document.createElement('div');
++    div.textContent = text;
++    return div.innerHTML;
++}
++
++// Carregar dados salvos no localStorage
++window.addEventListener('load', () => {
++    // Initialize language
++    currentLanguage = detectLanguage();
++    document.getElementById('languageSelector').value = localStorage.getItem('chatgpt_backup_language') || 'auto';
++    updatePageLanguage();
++
++    // Load saved data
++    const savedData = localStorage.getItem('chatgpt_backup_data');
++    if (savedData) {
++        try {
++            currentData = JSON.parse(savedData);
++            displayChats(currentData);
++            showStatus(translate('data_loaded_from_cache'), 'success');
++        } catch (error) {
++            console.error('Erro ao carregar dados salvos:', error);
++        }
++    }
++});
++
++// Language selector event listener
++document.addEventListener('DOMContentLoaded', () => {
++    const languageSelector = document.getElementById('languageSelector');
++    languageSelector.addEventListener('change', (e) => {
++        const selectedLang = e.target.value;
++        if (selectedLang === 'auto') {
++            localStorage.removeItem('chatgpt_backup_language');
++            setLanguage(detectLanguage());
++        } else {
++            setLanguage(selectedLang);
++        }
++    });
++
++    // Theme toggle functionality
++    const themeToggle = document.getElementById('themeToggle');
++    const sunIcon = themeToggle.querySelector('.sun-icon');
++    const moonIcon = themeToggle.querySelector('.moon-icon');
++
++    function updateThemeToggle(theme) {
++        if (theme === 'dark') {
++            sunIcon.classList.add('hidden');
++            moonIcon.classList.remove('hidden');
++            themeToggle.title = translate('switch_to_light');
++        } else {
++            sunIcon.classList.remove('hidden');
++            moonIcon.classList.add('hidden');
++            themeToggle.title = translate('switch_to_dark');
++        }
++    }
++
++    // Initialize theme
++    const savedTheme = localStorage.getItem('chatgpt_backup_theme');
++    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
++    const currentTheme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
++
++    document.documentElement.setAttribute('data-theme', currentTheme);
++    updateThemeToggle(currentTheme);
++    updateLogo(currentTheme); // Initialize logo with correct theme
++
++    // Theme toggle click handler
++    themeToggle.addEventListener('click', () => {
++        const currentTheme = document.documentElement.getAttribute('data-theme');
++        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
++
++        document.documentElement.setAttribute('data-theme', newTheme);
++        localStorage.setItem('chatgpt_backup_theme', newTheme);
++        updateThemeToggle(newTheme);
++        updateLogo(newTheme); // Update logo when theme changes
++
++        // Re-render current chat to update dynamic icons
++        if (currentChat) {
++            renderMessages(currentChat, isMarkdownMode);
++        }
++    });
++
++    // Listen for system theme changes
++    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
++        if (!localStorage.getItem('chatgpt_backup_theme')) {
++            const theme = e.matches ? 'dark' : 'light';
++            document.documentElement.setAttribute('data-theme', theme);
++            updateThemeToggle(theme);
++            updateLogo(theme); // Update logo when system theme changes
++
++            // Re-render current chat to update dynamic icons
++            if (currentChat) {
++                renderMessages(currentChat, isMarkdownMode);
++            }
++        }
++    });
++
++    // Preview action buttons
++    const toggleMarkdownBtn = document.getElementById('toggleMarkdownBtn');
++    const copyContentBtn = document.getElementById('copyContentBtn');
++
++    toggleMarkdownBtn.addEventListener('click', () => {
++        if (currentChat) {
++            isMarkdownMode = !isMarkdownMode;
++            renderMessages(currentChat, isMarkdownMode);
++
++            // Update button tooltip
++            toggleMarkdownBtn.title = isMarkdownMode
++                ? translate('toggle_markdown') + ' (Raw)'
++                : translate('toggle_markdown') + ' (Rendered)';
++        }
++    });
++
++    copyContentBtn.addEventListener('click', async () => {
++        if (currentChat && currentChat.messages) {
++            let content = '';
++            currentChat.messages.forEach(message => {
++                if (message.role === 'user' || message.role === 'assistant') {
++                    const messageContent = Array.isArray(message.content) ? message.content[0] : message.content;
++                    if (messageContent) {
++                        content += `**${message.role === 'user' ? translate('user') : translate('assistant')}:**\n${messageContent}\n\n`;
++                    }
++                }
++            });
++
++            try {
++                await navigator.clipboard.writeText(content);
++                // Temporary feedback
++                const originalTitle = copyContentBtn.title;
++                copyContentBtn.title = translate('content_copied');
++                setTimeout(() => {
++                    copyContentBtn.title = originalTitle;
++                }, 2000);
++            } catch (err) {
++                console.error('Failed to copy content:', err);
++            }
++        }
++    });
++});
+\ No newline at end of file
+diff --git a/index.html b/index.html
+index ed8fc0d..a4be829 100644
+--- a/index.html
++++ b/index.html
+@@ -1,227 +1,104 @@
+ <!DOCTYPE html>
+ <html>
+-  <head>
+-    <meta charset="UTF-8" />
+-    <title>Load JSON File</title>
+-    <link
+-      href="https://unpkg.com/primevue/resources/themes/lara-light-indigo/theme.css"
+-      rel="stylesheet"
+-    />
+-    <link
+-      href="https://unpkg.com/primevue/resources/primevue.min.css"
+-      rel="stylesheet"
+-    />
+-    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
+ 
+-    <script src="https://unpkg.com/vue@next"></script>
+-    <script src="https://unpkg.com/primevue/api/api.min.js"></script>
+-    <script src="https://unpkg.com/primevue/config/config.min.js"></script>
+-    <script src="https://unpkg.com/primevue/utils/utils.min.js"></script>
+-    <script src="https://unpkg.com/primevue/virtualscroller/virtualscroller.min.js"></script>
++<head>
++  <meta charset="UTF-8" />
++  <title data-i18n="title">ChatGPT Backup Viewer</title>
++  <meta name="viewport" content="width=device-width, initial-scale=1.0">
++  <link rel="stylesheet" href="assets/css/styles.css">
++</head>
+ 
+-    <script src="https://unpkg.com/primevue/ripple/ripple.min.js"></script>
+-    <script src="https://unpkg.com/primevue/columngroup/columngroup.min.js"></script>
+-    <script src="https://unpkg.com/primevue/paginator/paginator.min.js"></script>
+-    <script src="https://unpkg.com/primevue/column/column.min.js"></script>
+-    <script src="https://unpkg.com/primevue/datatable/datatable.min.js"></script>
+-    <script src="https://unpkg.com/primevue/inputtext/inputtext.min.js"></script>
+-    <script src="https://unpkg.com/primevue/button/button.min.js"></script>
+-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+-    <style>
+-      .column-td {
+-        display: flex;
+-        justify-content: space-between;
+-        align-items: center;
+-      }
+-
+-      .column-td .button-container {
+-        display: flex;
+-        justify-content: flex-end;
+-      }
+-
+-      .column-td button {
+-        margin-left: 5px;
+-      }
+-
+-      body,
+-      html {
+-        height: 100%;
+-        margin: 0;
+-      }
+-
+-      .app-container {
+-        display: flex;
+-        justify-content: center;
+-        align-items: center;
+-        height: 100%;
+-      }
+-
+-      .content-container {
+-        display: flex;
+-        width: 100%;
+-        max-width: 1400px;
+-        height: 100%;
+-      }
+-
+-      .table-container {
+-        flex: 1;
+-        min-width: 0;
+-        height: 100%;
+-        overflow-y: auto;
+-      }
++<body>
++  <!-- Header -->
++  <header class="header">
++    <div class="header-left">
++      <a href="#" class="logo">
++        <div class="icon-logo">
++          <img src="/assets/images/OpenAI-black-monoblossom.svg" alt="Logo" class="logo-image">
++        </div>
++        <span data-i18n="title">ChatGPT Backup Viewer</span>
++      </a>
++      <a href="https://github.com/abacaj/chatgpt-backup" class="github-link" target="_blank" rel="noopener">
++        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
++          <path
++            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
++        </svg>
++      </a>
++    </div>
+ 
+-      .preview {
+-        flex: 1;
+-        position: sticky;
+-        top: 0;
+-        overflow-y: auto;
+-        border: 1px solid #ccc;
+-        padding: 1rem;
+-        height: 100%;
+-        /* word-wrap: break-word; Add this line */
+-        /* overflow-wrap: break-word; */
+-      }
++    <div class="header-right">
++      <div class="control-group">
++        <button class="theme-toggle" id="themeToggle" title="Toggle theme">
++          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="sun-icon">
++            <path
++              d="M12 18C8.68629 18 6 15.3137 6 12C6 8.68629 8.68629 6 12 6C15.3137 6 18 8.68629 18 12C18 15.3137 15.3137 18 12 18ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM11 1H13V4H11V1ZM11 20H13V23H11V20ZM3.51472 4.92893L4.92893 3.51472L7.05025 5.63604L5.63604 7.05025L3.51472 4.92893ZM16.9497 18.364L18.364 16.9497L20.4853 19.0711L19.0711 20.4853L16.9497 18.364ZM19.0711 3.51472L20.4853 4.92893L18.364 7.05025L16.9497 5.63604L19.0711 3.51472ZM5.63604 16.9497L7.05025 18.364L4.92893 20.4853L3.51472 19.0711L5.63604 16.9497ZM23 11V13H20V11H23ZM4 11V13H1V11H4Z" />
++          </svg>
++          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="moon-icon hidden">
++            <path
++              d="M10 7C10 10.866 13.134 14 17 14C18.9584 14 20.729 13.1957 21.9995 11.8995C22 11.933 22 11.9665 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C12.0335 2 12.067 2 12.1005 2.00049C10.8043 3.27098 10 5.04157 10 7Z" />
++          </svg>
++        </button>
++        <div class="language-selector">
++          <select id="languageSelector">
++            <option value="auto" data-i18n="lang_auto">Auto-detect</option>
++            <option value="en" data-i18n="lang_en">English</option>
++            <option value="pt-br" data-i18n="lang_pt_br">Português (BR)</option>
++          </select>
++        </div>
++      </div>
++    </div>
++  </header>
+ 
+-      .preview pre {
+-        white-space: pre-wrap;
+-        /* Enable wrapping for <pre> */
+-        word-wrap: break-word;
+-        /* Enable word wrapping for <pre> */
+-      }
++  <!-- Main Container -->
++  <div class="main-container">
++    <div class="content-wrapper">
++      <!-- Sidebar -->
++      <aside class="sidebar">
++        <div class="sidebar-header">
++          <div class="file-input-area">
++            <div class="file-input">
++              <input type="file" id="fileInput" accept=".json" />
++            </div>
++            <p class="file-input-text" data-i18n="select_file">Select the ChatGPT backup JSON file</p>
++          </div>
++        </div>
+ 
+-      .preview code {
+-        white-space: pre-wrap;
+-        /* Enable wrapping for <code> */
+-        word-wrap: break-word;
+-        /* Enable word wrapping for <code> */
+-      }
+-    </style>
+-  </head>
++        <div class="status-container">
++          <div id="status"></div>
++        </div>
+ 
+-  <body>
+-    <div id="app" class="app-container"></div>
++        <div class="sidebar-content">
++          <div id="chatsList"></div>
++        </div>
++      </aside>
+ 
+-    <template id="template">
+-      <div class="content-container">
+-        <div class="table-container">
+-          <input type="file" id="fileInput" @change="loadJSON" accept=".json" />
+-          <p-datatable :value="output">
+-            <p-column field="title" header="Title" class="column-td">
+-              <template #body="slotProps">
+-                <span>{{ slotProps.data.title || 'Untitled' }}</span>
+-                <div class="button-container">
+-                  <p-button
+-                    icon="pi pi-eye"
+-                    size="small"
+-                    @click="showPreview(slotProps.data)"
+-                  ></p-button>
+-                  <p-button
+-                    icon="pi pi-download"
+-                    size="small"
+-                    @click="downloadChat(slotProps.data)"
+-                  ></p-button>
+-                </div>
+-              </template>
+-            </p-column>
+-          </p-datatable>
++      <!-- Main Content -->
++      <main class="main-content">
++        <div class="preview-header">
++          <h2 data-i18n="select_conversation">Select a conversation to view the preview</h2>
++          <div class="preview-header-actions">
++            <button class="preview-action-btn" id="toggleMarkdownBtn" data-i18n-title="toggle_markdown">
++              <svg width="16" height="16" viewBox="0 0 576 512" fill="currentColor">
++                <path
++                  d="M360.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm64.6 136.1c-12.5 12.5-12.5 32.8 0 45.3l73.4 73.4-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0zm-274.7 0c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 150.6 182.6c12.5-12.5 12.5-32.8 0-45.3z" />
++              </svg>
++            </button>
++            <button class="preview-action-btn" id="copyContentBtn" data-i18n-title="copy_content">
++              <svg width="16" height="16" viewBox="0 0 640 640" fill="currentColor">
++                <path
++                  d="M480 400L288 400C279.2 400 272 392.8 272 384L272 128C272 119.2 279.2 112 288 112L421.5 112C425.7 112 429.8 113.7 432.8 116.7L491.3 175.2C494.3 178.2 496 182.3 496 186.5L496 384C496 392.8 488.8 400 480 400zM288 448L480 448C515.3 448 544 419.3 544 384L544 186.5C544 169.5 537.3 153.2 525.3 141.2L466.7 82.7C454.7 70.7 438.5 64 421.5 64L288 64C252.7 64 224 92.7 224 128L224 384C224 419.3 252.7 448 288 448zM160 192C124.7 192 96 220.7 96 256L96 512C96 547.3 124.7 576 160 576L352 576C387.3 576 416 547.3 416 512L416 496L368 496L368 512C368 520.8 360.8 528 352 528L160 528C151.2 528 144 520.8 144 512L144 256C144 247.2 151.2 240 160 240L176 240L176 192L160 192z" />
++              </svg>
++            </button>
++          </div>
+         </div>
+-        <div class="preview" v-if="selectedChat" v-html="preview"></div>
+-      </div>
+-    </template>
+-    <script>
+-      const app = Vue.createApp({
+-        data() {
+-          return {
+-            output: null,
+-            preview: '',
+-            selectedChat: false,
+-            previousChat: null,
+-          };
+-        },
+-        methods: {
+-          loadJSON() {
+-            /**
+-             * @typedef {Object} Message - A chat message object.
+-             * @property {string} role - The role of the message sender (e.g. "user" or "assistant").
+-             * @property {string[]} content - The content of the message as an array of strings.
+-             * @property {number} create_time - The timestamp of when the message was created.
+-             * @property {string} [model] - The name of the NLP model used to generate the message.
+-             */
+-            /**
+-             * @typedef {Object} Chat - A chat conversation object.
+-             * @property {Message[]} messages - An array of messages in the chat.
+-             * @property {number} create_time - The timestamp of when the chat was created.
+-             * @property {string} [title] - The title of the chat (optional).
+-             */
++        <div class="preview-content" id="preview">
++          <p data-i18n="select_conversation_help">Choose a conversation from the sidebar to see its content here.</p>
++        </div>
++      </main>
++    </div>
++  </div>
+ 
+-            /**
+-             * @typedef {Chat[]} Backup - An array of chat objects representing a backup of a chat log.
+-             */
+-            const input = document.getElementById('fileInput');
+-            const file = input.files[0];
+-            const reader = new FileReader();
+-            reader.readAsText(file);
+-            reader.onload = () => {
+-              const json = JSON.parse(reader.result);
+-              this.output = json;
+-              localStorage.setItem('json_data', JSON.stringify(json));
++  <script src="assets/js/app.js"></script>
++</body>
+ 
+-              console.log(json);
+-            };
+-          },
+-          jsonToMarkdown(json) {
+-            let output = '';
+-            const userIcon = '![User](assets/mdi-user.png)';
+-            const assistantIcon =
+-              '![Assistant](assets/tabler-brand-openai-1.png)';
+-            for (const message of json.messages) {
+-              if (message.role === 'user' || message.role === 'assistant') {
+-                output += `${
+-                  message.role === 'user' ? userIcon : assistantIcon
+-                }\r\n\r\n${message.content[0]}\n\n---\n\n`;
+-              }
+-            }
+-            return output;
+-          },
+-          downloadChat(chat) {
+-            const title = chat.title || 'Untitled';
+-            const markdown = this.jsonToMarkdown(chat);
+-            this.downloadMarkdown(title, markdown);
+-          },
+-          downloadMarkdown(title, markdown) {
+-            const blob = new Blob([markdown], { type: 'text/markdown' });
+-            const url = URL.createObjectURL(blob);
+-            const link = document.createElement('a');
+-            link.href = url;
+-            link.download = `${title}.md`;
+-            link.click();
+-            URL.revokeObjectURL(url);
+-          },
+-          showPreview(chat) {
+-            this.selectedChat =
+-              !this.selectedChat || this.previousChat !== chat;
+-            this.previousChat = chat;
+-            const markdown = this.jsonToMarkdown(chat);
+-            const outputElement = document.createElement('div');
+-            outputElement.innerHTML = marked.parse(markdown);
+-            this.preview = outputElement.innerHTML;
+-          },
+-        },
+-        mounted() {
+-          const savedJSON = localStorage.getItem('json_data');
+-          if (savedJSON) {
+-            this.output = JSON.parse(savedJSON);
+-          }
+-        },
+-        template: '#template',
+-        components: {
+-          'p-button': primevue.button,
+-          'p-datatable': primevue.datatable,
+-          'p-column': primevue.column,
+-        },
+-      });
+-      app.directive('ripple', primevue.ripple);
+-      app.mount('#app');
+-    </script>
+-  </body>
+-</html>
++</html>
+\ No newline at end of file
+-- 
+2.34.1
+

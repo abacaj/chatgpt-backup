@@ -1,0 +1,1037 @@
+:root {
+    /* Monochromatic Neutral Scale - Light Theme (Based on EightShapes principles) */
+    /* Base neutrals: white to near-black with successive darkening layers */
+    --neutral-0: #ffffff;
+    /* Pure white background */
+    --neutral-50: #fafafa;
+    /* Lightest gray background */
+    --neutral-100: #f5f5f5;
+    /* Light gray module background */
+    --neutral-200: #e5e5e5;
+    /* Light border/separator */
+    --neutral-300: #d4d4d4;
+    /* Medium light border */
+    --neutral-400: #a3a3a3;
+    /* Disabled text */
+    --neutral-500: #737373;
+    /* Secondary text */
+    --neutral-600: #525252;
+    /* Primary text */
+    --neutral-700: #404040;
+    /* High contrast text */
+    --neutral-800: #262626;
+    /* Near black */
+    --neutral-900: #171717;
+    /* Darkest elements */
+
+    /* Light theme semantic colors */
+    --bg-primary: var(--neutral-0);
+    --bg-secondary: var(--neutral-50);
+    --bg-tertiary: var(--neutral-100);
+    --bg-elevated: var(--neutral-0);
+
+    --text-primary: var(--neutral-700);
+    --text-secondary: var(--neutral-500);
+    --text-disabled: var(--neutral-400);
+    --text-interactive: var(--neutral-800);
+    --text-error: var(--neutral-800);
+
+    --border-light: var(--neutral-200);
+    --border-medium: var(--neutral-300);
+    --border-strong: var(--neutral-400);
+
+    --shadow-light: rgba(0, 0, 0, 0.05);
+    --shadow-medium: rgba(0, 0, 0, 0.1);
+    --shadow-strong: rgba(0, 0, 0, 0.15);
+
+    /* Interactive states using opacity shifts */
+    --state-hover: rgba(0, 0, 0, 0.04);
+    --state-active: rgba(0, 0, 0, 0.08);
+    --state-selected: rgba(0, 0, 0, 0.12);
+
+    /* Status colors - monochromatic approach */
+    --status-success-bg: var(--neutral-100);
+    --status-success-text: var(--neutral-700);
+    --status-error-bg: var(--neutral-100);
+    --status-error-text: var(--neutral-800);
+    --status-warning-bg: var(--neutral-100);
+    --status-warning-text: var(--neutral-700);
+
+    /* Layout constants */
+    --header-height: 64px;
+    --sidebar-width: 400px;
+}
+
+[data-theme="dark"] {
+    /* Monochromatic Neutral Scale - Dark Theme */
+    /* Inverted scale: near-black to white with successive lightening layers */
+    --neutral-0: #0a0a0a;
+    /* Near black background */
+    --neutral-50: #171717;
+    /* Dark background */
+    --neutral-100: #262626;
+    /* Dark module background */
+    --neutral-200: #404040;
+    /* Dark border/separator */
+    --neutral-300: #525252;
+    /* Medium dark border */
+    --neutral-400: #737373;
+    /* Disabled text on dark */
+    --neutral-500: #a3a3a3;
+    /* Secondary text on dark */
+    --neutral-600: #d4d4d4;
+    /* Primary text on dark */
+    --neutral-700: #e5e5e5;
+    /* High contrast text on dark */
+    --neutral-800: #f5f5f5;
+    /* Near white */
+    --neutral-900: #ffffff;
+    /* Pure white */
+
+    /* Dark theme semantic colors */
+    --bg-primary: var(--neutral-0);
+    --bg-secondary: var(--neutral-50);
+    --bg-tertiary: var(--neutral-100);
+    --bg-elevated: var(--neutral-100);
+
+    --text-primary: var(--neutral-700);
+    --text-secondary: var(--neutral-500);
+    --text-disabled: var(--neutral-400);
+    --text-interactive: var(--neutral-800);
+    --text-error: var(--neutral-800);
+
+    --border-light: var(--neutral-200);
+    --border-medium: var(--neutral-300);
+    --border-strong: var(--neutral-400);
+
+    --shadow-light: rgba(0, 0, 0, 0.2);
+    --shadow-medium: rgba(0, 0, 0, 0.3);
+    --shadow-strong: rgba(0, 0, 0, 0.4);
+
+    /* Interactive states for dark theme */
+    --state-hover: rgba(255, 255, 255, 0.04);
+    --state-active: rgba(255, 255, 255, 0.08);
+    --state-selected: rgba(255, 255, 255, 0.12);
+
+    /* Status colors - maintaining readability on dark */
+    --status-success-bg: var(--neutral-100);
+    --status-success-text: var(--neutral-700);
+    --status-error-bg: var(--neutral-100);
+    --status-error-text: var(--neutral-800);
+    --status-warning-bg: var(--neutral-100);
+    --status-warning-text: var(--neutral-700);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    height: 100%;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==========================================
+   HEADER STYLES
+   ========================================== */
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: var(--bg-elevated);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-light);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.logo:hover {
+    color: var(--text-interactive);
+}
+
+.icon-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-medium);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: all 0.2s ease;
+}
+
+.icon-logo:hover {
+    background: var(--state-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.logo-image {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: opacity 0.2s ease;
+}
+
+.github-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.github-link:hover {
+    background-color: var(--state-hover);
+    color: var(--text-primary);
+    border-color: var(--border-medium);
+}
+
+.github-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-left: 0.25rem;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.github-link:hover .github-label {
+    opacity: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.25rem;
+}
+
+.theme-toggle,
+.language-selector select {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover,
+.language-selector select:hover {
+    background-color: var(--state-hover);
+    color: var(--text-primary);
+}
+
+.theme-toggle {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================
+   MAIN LAYOUT
+   ========================================== */
+
+.main-container {
+    height: 100vh;
+    padding-top: var(--header-height);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content-wrapper {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    min-width: 320px;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background-color: var(--bg-primary);
+}
+
+.file-input-area {
+    background-color: var(--bg-tertiary);
+    border: 2px dashed var(--border-medium);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.file-input-area:hover {
+    border-color: var(--border-strong);
+    background-color: var(--state-hover);
+}
+
+.file-input {
+    margin-bottom: 0.75rem;
+}
+
+.file-input input[type="file"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-medium);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input input[type="file"]:hover {
+    border-color: var(--border-strong);
+    background-color: var(--state-hover);
+}
+
+.file-input-text {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.main-content {
+    flex: 1;
+    background-color: var(--bg-primary);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.preview-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.preview-header-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.preview-action-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.preview-action-btn:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+.preview-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* ==========================================
+   CHAT ITEMS
+   ========================================== */
+
+.chat-item {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chat-item:hover {
+    background-color: var(--state-hover);
+    border-color: var(--border-medium);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.chat-item.selected {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-medium);
+}
+
+.chat-item.selected .chat-info {
+    color: var(--text-secondary);
+}
+
+.chat-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.chat-info {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.download-btn {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.download-btn:hover {
+    background-color: var(--state-hover);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.chat-item.selected .download-btn {
+    background-color: var(--neutral-600);
+    color: var(--neutral-0);
+    border-color: var(--neutral-600);
+}
+
+.chat-item.selected .download-btn:hover {
+    background-color: var(--neutral-700);
+    border-color: var(--neutral-700);
+}
+
+/* ==========================================
+   MESSAGES
+   ========================================== */
+
+.message {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background-color: var(--bg-primary);
+}
+
+.message.user {
+    background-color: var(--bg-secondary);
+    margin-left: 2rem;
+    border-left: 3px solid var(--neutral-400);
+}
+
+.message.assistant {
+    background-color: var(--bg-tertiary);
+    margin-right: 2rem;
+    border-left: 3px solid var(--neutral-600);
+}
+
+.message-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0.125rem;
+}
+
+.message.user .message-icon {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.message.assistant .message-icon {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.message-content {
+    flex: 1;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* Markdown styles */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+    color: var(--text-primary);
+    margin: 1em 0 0.5em 0;
+    font-weight: 600;
+}
+
+.message-content h1 {
+    font-size: 1.5em;
+}
+
+.message-content h2 {
+    font-size: 1.3em;
+}
+
+.message-content h3 {
+    font-size: 1.1em;
+}
+
+.message-content p {
+    margin: 0.75em 0;
+}
+
+.message-content code {
+    background-color: var(--bg-tertiary);
+    padding: 0.125em 0.25em;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875em;
+}
+
+.message-content pre {
+    background-color: var(--bg-tertiary);
+    padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.message-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.message-content ul,
+.message-content ol {
+    margin: 0.75em 0;
+    padding-left: 1.5em;
+}
+
+.message-content li {
+    margin: 0.25em 0;
+}
+
+.message-content blockquote {
+    border-left: 4px solid var(--border-color);
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    background-color: var(--bg-tertiary);
+    font-style: italic;
+}
+
+.message-content strong {
+    font-weight: 600;
+}
+
+.message-content em {
+    font-style: italic;
+}
+
+.message-content a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.message-content a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   MARKDOWN EDITOR/VIEWER
+   ========================================== */
+
+.markdown-editor,
+.markdown-viewer {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-header,
+.viewer-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.editor-header h3,
+.viewer-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.editor-info,
+.viewer-info {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.markdown-source {
+    flex: 1;
+    width: 100%;
+    padding: 1.5rem;
+    border: none;
+    outline: none;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Courier New', Monaco, monospace;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    resize: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    tab-size: 2;
+}
+
+.markdown-source:focus {
+    background-color: var(--bg-secondary);
+}
+
+.conversation-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+/* Enhanced message styles for viewer mode */
+.markdown-viewer .message {
+    margin-bottom: 2rem;
+    padding: 0;
+    border: none;
+    background: none;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.markdown-viewer .message-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.markdown-viewer .message-header .message-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: none;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.markdown-viewer .message-header .message-icon img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.markdown-viewer .message.user .message-header {
+    border-bottom-color: var(--accent-primary);
+}
+
+.markdown-viewer .message.assistant .message-header {
+    border-bottom-color: var(--success-color);
+}
+
+.markdown-viewer .message-role {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.markdown-viewer .message.user .message-role {
+    color: var(--accent-primary);
+}
+
+.markdown-viewer .message.assistant .message-role {
+    color: var(--success-color);
+}
+
+.markdown-content {
+    padding-left: 0;
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+
+/* Enhanced markdown content styles */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    color: var(--text-primary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.markdown-content h1 {
+    font-size: 1.75rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+    font-size: 1.45rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.markdown-content h2 img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.markdown-content h3 {
+    font-size: 1.25rem;
+}
+
+.markdown-content p {
+    margin: 1em 0;
+    line-height: 1.7;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+    margin: 1em 0;
+    padding-left: 2rem;
+}
+
+.markdown-content li {
+    margin: 0.5em 0;
+    line-height: 1.6;
+}
+
+.markdown-content blockquote {
+    border-left: 4px solid var(--accent-primary);
+    margin: 1.5em 0;
+    padding: 1rem 1.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+}
+
+.markdown-content pre {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5em 0;
+    font-family: 'Courier New', Monaco, monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.markdown-content code {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    padding: 0.25em 0.5em;
+    border-radius: 4px;
+    font-family: 'Courier New', Monaco, monospace;
+    font-size: 0.875em;
+}
+
+.markdown-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.markdown-content a {
+    color: var(--accent-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   STATUS MESSAGES
+   ========================================== */
+
+.status-container {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.error {
+    color: var(--status-error-text);
+    background-color: var(--status-error-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--neutral-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.success {
+    color: var(--status-success-text);
+    background-color: var(--status-success-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--neutral-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.warning {
+    color: var(--status-warning-text);
+    background-color: var(--status-warning-bg);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 4px solid var(--neutral-500);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 350px;
+    }
+
+    .header {
+        padding: 0 1rem;
+    }
+
+    .github-link span {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 100%;
+        --header-height: 56px;
+    }
+
+    .header {
+        padding: 0 1rem;
+    }
+
+    .header-left {
+        gap: 0.5rem;
+    }
+
+    .logo {
+        font-size: 1.125rem;
+    }
+
+    .github-link {
+        padding: 0.5rem;
+    }
+
+    .content-wrapper {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        max-height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-content {
+        min-height: 60vh;
+    }
+
+    .message.user {
+        margin-left: 0.5rem;
+    }
+
+    .message.assistant {
+        margin-right: 0.5rem;
+    }
+
+    .sidebar-header,
+    .preview-content {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 0 0.75rem;
+    }
+
+    .control-group {
+        gap: 0.25rem;
+        padding: 0.125rem;
+    }
+
+    .theme-toggle,
+    .language-selector select {
+        padding: 0.375rem;
+    }
+
+    .message {
+        margin-bottom: 1rem;
+        padding: 1rem;
+    }
+
+    .message.user,
+    .message.assistant {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+/* ==========================================
+   UTILITIES
+   ========================================== */
+
+.hidden {
+    display: none !important;
+}
+
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Custom scrollbar */
+.sidebar-content::-webkit-scrollbar,
+.preview-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track,
+.preview-content::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb,
+.preview-content::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover,
+.preview-content::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
