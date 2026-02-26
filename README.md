@@ -16,7 +16,7 @@ A single client side script to backup your entire conversation history on [chat.
 2. Make sure you are logged in
 3. Open chrome console or firefox console (F12 on keyboard)
 4. Click on "Console" tab
-5. Copy the entire script content found in file backup.js and paste into the console input field at the bottom
+5. Copy the entire script content found in file <a href="backup.js" target="_blank">backup.js</a> and paste into the console input field at the bottom
 6. Press enter, script starts and will log progress to console
    ![Progress](assets/progress.png)
 7. If it fails at any point you can check the console logs to see the offset it failed at
